@@ -189,19 +189,19 @@
       <div class="grid">
         <div class="field">
           <label for="meetingMonth">Meeting Month</label>
-          <input id="meetingMonth" value="September 2026">
+          <input id="meetingMonth" value="">
         </div>
         <div class="field">
           <label for="reportingPeriod">Reporting Period</label>
-          <input id="reportingPeriod" value="27/08/26 – 22/09/26">
+          <input id="reportingPeriod" value="">
         </div>
         <div class="field">
           <label for="meetingDate">Meeting Date</label>
-          <input id="meetingDate" value="24/09/26">
+          <input id="meetingDate" value="">
         </div>
         <div class="field">
           <label for="daysPeriod">Days in Period</label>
-          <input id="daysPeriod" type="number" value="19">
+          <input id="daysPeriod" type="number" value="">
         </div>
       </div>
     </section>
@@ -210,7 +210,7 @@
       <h2>Engagement overview</h2>
       <div class="field">
         <label for="overview">Overview / narrative</label>
-        <textarea id="overview">No significant changes compared to previous report.</textarea>
+        <textarea id="overview"></textarea>
       </div>
     </section>
 
@@ -221,11 +221,11 @@
           <tr><th>Engagement Metric</th><th>Total</th></tr>
         </thead>
         <tbody>
-          <tr><td class="metric">Total Engagements</td><td><input id="totalEngagements" value="1109"></td></tr>
-          <tr><td class="metric">Proactive Engagements</td><td><input id="proactiveEngagements" value="1014 (91%)"></td></tr>
-          <tr><td class="metric">Reactive Engagements</td><td><input id="reactiveEngagements" value="95 (9%)"></td></tr>
-          <tr><td class="metric">Face-to-Face Engagements</td><td><input id="faceToFace" value="67 (6%) (Total 81 including Drop In attendees)"></td></tr>
-          <tr><td class="metric">Drop-In Attendees</td><td><input id="dropIn" value="14"></td></tr>
+          <tr><td class="metric">Total Engagements</td><td><input id="totalEngagements" value=""></td></tr>
+          <tr><td class="metric">Proactive Engagements</td><td><input id="proactiveEngagements" value=""></td></tr>
+          <tr><td class="metric">Reactive Engagements</td><td><input id="reactiveEngagements" value=""></td></tr>
+          <tr><td class="metric">Face-to-Face Engagements</td><td><input id="faceToFace" value=""></td></tr>
+          <tr><td class="metric">Drop-In Attendees</td><td><input id="dropIn" value=""></td></tr>
         </tbody>
       </table>
     </section>
@@ -237,14 +237,14 @@
           <tr><th>Communication Type</th><th>Total</th></tr>
         </thead>
         <tbody>
-          <tr><td class="metric">Emails Received</td><td><input id="emailsReceived" value="66"></td></tr>
-          <tr><td class="metric">Emails Sent</td><td><input id="emailsSent" value="935"></td></tr>
-          <tr><td class="metric">Phone Calls Incoming</td><td><input id="callsIncoming" value="7"></td></tr>
-          <tr><td class="metric">Phone Calls Outgoing</td><td><input id="callsOutgoing" value="0"></td></tr>
-          <tr><td class="metric">Texts/WhatsApp Messages Received</td><td><input id="messagesReceived" value="11"></td></tr>
-          <tr><td class="metric">Texts/WhatsApp Messages Sent</td><td><input id="messagesSent" value="9"></td></tr>
-          <tr><td class="metric">Newsletters Distributed (Digital)</td><td><input id="newslettersDigital" value="730"></td></tr>
-          <tr><td class="metric">Newsletters Distributed (Print)</td><td><input id="newslettersPrint" value="26"></td></tr>
+          <tr><td class="metric">Emails Received</td><td><input id="emailsReceived" value=""></td></tr>
+          <tr><td class="metric">Emails Sent</td><td><input id="emailsSent" value=""></td></tr>
+          <tr><td class="metric">Phone Calls Incoming</td><td><input id="callsIncoming" value=""></td></tr>
+          <tr><td class="metric">Phone Calls Outgoing</td><td><input id="callsOutgoing" value=""></td></tr>
+          <tr><td class="metric">Texts/WhatsApp Messages Received</td><td><input id="messagesReceived" value=""></td></tr>
+          <tr><td class="metric">Texts/WhatsApp Messages Sent</td><td><input id="messagesSent" value=""></td></tr>
+          <tr><td class="metric">Newsletters Distributed (Digital)</td><td><input id="newslettersDigital" value=""></td></tr>
+          <tr><td class="metric">Newsletters Distributed (Print)</td><td><input id="newslettersPrint" value=""></td></tr>
         </tbody>
       </table>
     </section>
@@ -256,8 +256,8 @@
           <tr><th>Feedback Type</th><th>Total</th></tr>
         </thead>
         <tbody>
-          <tr><td class="metric">Complaints Received</td><td><input id="complaints" value="0"></td></tr>
-          <tr><td class="metric">Compliments Received</td><td><input id="compliments" value="0"></td></tr>
+          <tr><td class="metric">Complaints Received</td><td><input id="complaints" value=""></td></tr>
+          <tr><td class="metric">Compliments Received</td><td><input id="compliments" value=""></td></tr>
         </tbody>
       </table>
     </section>
@@ -265,14 +265,14 @@
     <section class="section">
       <h2>Summary commentary</h2>
       <div class="field">
-        <textarea id="commentary">No significant changes compared to previous report.</textarea>
+        <textarea id="commentary"></textarea>
       </div>
     </section>
 
     <section class="section">
       <h2>Key observations</h2>
       <div class="field">
-        <textarea id="observations">• Face-to-face engagement increase can be attributed to Drop In Session attendances, increase in newsletter distribution, and letter drop and increased engagement in Cannon Street ahead of forthcoming HVM Installation works.</textarea>
+        <textarea id="observations"></textarea>
       </div>
     </section>
 
@@ -295,33 +295,15 @@
       <button class="primary" onclick="saveForm()">Save in this browser</button>
       <button class="secondary" onclick="window.print()">Print / Save as PDF</button>
       <button class="secondary" onclick="loadForm()">Load saved data</button>
-      <button class="danger" onclick="resetForm()">Reset</button>
+      <button class="danger" onclick="resetForm()">Clear all fields</button>
     </div>
 
   </div>
 </div>
 
 <script>
-/* ==========================================================
-   CPC CIVILS MONTHLY ENGAGEMENT REPORT
-   ==========================================================
-   LIVE OUTLOOK CALENDAR:
-   Replace the empty string below with the PUBLIC ICS URL
-   supplied by Outlook.
-
-   Example:
-   const CALENDAR_ICS_URL = "https://.../calendar.ics";
-
-   IMPORTANT:
-   Some browsers/web hosts block cross-origin requests to
-   Outlook ICS feeds. If that happens, use a tiny server-side
-   proxy or paste the events into calendarEvents below.
-   ========================================================== */
-
 const CALENDAR_ICS_URL = "https://outlook.office365.com/owa/calendar/be783f3a369b4c90b804e509531ea3af@cpccivils.net/97d1ab5308664ae3a0778cff920320034156632606812165758/calendar.ics";
 
-// Fallback/sample events. Replace these with your key events
-// if you do not connect the ICS feed.
 const calendarEvents = [
   { date: "24 Sep 2026", title: "Monthly Engagement Report meeting" },
   { date: "01 Oct 2026", title: "Forthcoming works / stakeholder update" },
@@ -356,9 +338,18 @@ function loadForm() {
 }
 
 function resetForm() {
-  if (!confirm("Reset this report to the original template values?")) return;
+  if (!confirm("Clear all fields? This cannot be undone (saved data will also be removed).")) return;
+
+  // Clear every field
+  fieldIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+
+  // Remove any saved data so "Load" does not restore old values
   localStorage.removeItem("cpcMonthlyEngagementReport");
-  location.reload();
+
+  alert("All fields have been cleared.");
 }
 
 function parseICSDate(value) {

@@ -81,7 +81,19 @@
     background:#f4f7fa;
     color:var(--text);
   }
-  textarea { min-height:105px; resize:vertical; }
+  textarea {
+    min-height:105px;
+    resize:vertical;
+    overflow:auto;
+  }
+  .print-text {
+    display:none;
+    white-space:pre-wrap;
+    word-wrap:break-word;
+    line-height:1.45;
+    margin:0;
+    padding:0;
+  }
   table {
     width:100%;
     border-collapse:collapse;
@@ -91,6 +103,7 @@
     border:1px solid var(--border);
     padding:10px 12px;
     text-align:left;
+    vertical-align:top;
   }
   th {
     background:var(--light);
@@ -171,10 +184,30 @@
     body { background:white; }
     .actions, .status-banner { display:none !important; }
     .container { max-width:none; margin:0; padding:0; }
-    .header { border-radius:0; }
-    .card { border:0; }
-    input, textarea { border:0; padding:0; background:transparent !important; }
-    textarea { min-height:auto; }
+    .header { border-radius:0; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .card { border:0; padding:16px 0; }
+    input, textarea { display:none !important; }
+    .print-text {
+      display:block !important;
+      white-space:pre-wrap;
+      word-wrap:break-word;
+      overflow:visible;
+      height:auto !important;
+      min-height:0 !important;
+      max-height:none !important;
+      border:0;
+      padding:0;
+      margin:0;
+      background:transparent;
+      font:inherit;
+      color:var(--text);
+      line-height:1.45;
+    }
+    td .print-text { display:inline !important; }
+    .pct-hint { color:var(--text); }
+    .small-note { display:none; }
+    .section { break-inside:avoid; page-break-inside:avoid; }
+    .section h2 { break-after:avoid; }
   }
 </style>
 </head>
@@ -194,26 +227,32 @@
         <div class="field">
           <label for="meetingMonth">Meeting Month</label>
           <input id="meetingMonth" placeholder="e.g. September 2026">
+          <div class="print-text" data-for="meetingMonth"></div>
         </div>
         <div class="field">
           <label for="meetingDate">Meeting Date</label>
           <input id="meetingDate" type="date">
+          <div class="print-text" data-for="meetingDate"></div>
         </div>
         <div class="field">
           <label for="startDate">Period Start Date</label>
           <input id="startDate" type="date">
+          <div class="print-text" data-for="startDate"></div>
         </div>
         <div class="field">
           <label for="endDate">Period End Date</label>
           <input id="endDate" type="date">
+          <div class="print-text" data-for="endDate"></div>
         </div>
         <div class="field">
           <label for="reportingPeriod">Reporting Period</label>
           <input id="reportingPeriod" readonly placeholder="Auto-filled from start &amp; end dates">
+          <div class="print-text" data-for="reportingPeriod"></div>
         </div>
         <div class="field">
           <label for="daysPeriod">Days in Period</label>
           <input id="daysPeriod" type="number" readonly placeholder="Auto-calculated">
+          <div class="print-text" data-for="daysPeriod"></div>
         </div>
       </div>
       <p class="small-note">Days in Period is calculated inclusive of both the start and end dates.</p>
@@ -224,6 +263,7 @@
       <div class="field">
         <label for="overview">Overview / narrative</label>
         <textarea id="overview" readonly placeholder="Generated automatically when you submit the form."></textarea>
+        <div class="print-text" data-for="overview"></div>
       </div>
     </section>
 
@@ -236,12 +276,16 @@
         <tbody>
           <tr>
             <td class="metric">Total Engagements</td>
-            <td><input id="totalEngagements" type="number" min="0" step="1" placeholder="0"></td>
+            <td>
+              <input id="totalEngagements" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="totalEngagements"></span>
+            </td>
           </tr>
           <tr>
             <td class="metric">Proactive Engagements</td>
             <td>
               <input id="proactiveEngagements" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="proactiveEngagements"></span>
               <div class="pct-hint" id="proactivePct">—</div>
             </td>
           </tr>
@@ -249,21 +293,29 @@
             <td class="metric">Reactive Engagements</td>
             <td>
               <input id="reactiveEngagements" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="reactiveEngagements"></span>
               <div class="pct-hint" id="reactivePct">—</div>
             </td>
           </tr>
           <tr>
             <td class="sub-metric">Face-to-Face Engagements (excl. drop-ins)</td>
-            <td><input id="faceToFaceOnly" type="number" min="0" step="1" placeholder="0"></td>
+            <td>
+              <input id="faceToFaceOnly" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="faceToFaceOnly"></span>
+            </td>
           </tr>
           <tr>
             <td class="sub-metric">Drop-In Attendees</td>
-            <td><input id="dropIn" type="number" min="0" step="1" placeholder="0"></td>
+            <td>
+              <input id="dropIn" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="dropIn"></span>
+            </td>
           </tr>
           <tr>
             <td class="metric total-metric">Total Face-to-Face Engagements<br><span style="font-weight:500;font-size:12px;color:var(--muted);">(Face-to-face + Drop-in attendees)</span></td>
             <td class="total-metric">
               <input id="faceToFaceTotal" type="number" readonly placeholder="Auto-calculated">
+              <span class="print-text" data-for="faceToFaceTotal"></span>
               <div class="pct-hint" id="faceToFacePct">—</div>
             </td>
           </tr>
@@ -284,16 +336,85 @@
           <tr><th>Communication Type</th><th>Total</th></tr>
         </thead>
         <tbody>
-          <tr><td class="metric">Emails Received</td><td><input id="emailsReceived" type="number" min="0" step="1" placeholder="0"></td></tr>
-          <tr><td class="metric">Emails Sent</td><td><input id="emailsSent" type="number" min="0" step="1" placeholder="0"></td></tr>
-          <tr><td class="metric">Phone Calls Incoming</td><td><input id="callsIncoming" type="number" min="0" step="1" placeholder="0"></td></tr>
-          <tr><td class="metric">Phone Calls Outgoing</td><td><input id="callsOutgoing" type="number" min="0" step="1" placeholder="0"></td></tr>
-          <tr><td class="metric">Texts/WhatsApp Messages Received</td><td><input id="messagesReceived" type="number" min="0" step="1" placeholder="0"></td></tr>
-          <tr><td class="metric">Texts/WhatsApp Messages Sent</td><td><input id="messagesSent" type="number" min="0" step="1" placeholder="0"></td></tr>
-          <tr><td class="metric">Newsletters Distributed (Digital)</td><td><input id="newslettersDigital" type="number" min="0" step="1" placeholder="0"></td></tr>
-          <tr><td class="metric">Newsletters Distributed (Print)</td><td><input id="newslettersPrint" type="number" min="0" step="1" placeholder="0"></td></tr>
+          <tr>
+            <td class="metric">Emails Received</td>
+            <td>
+              <input id="emailsReceived" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="emailsReceived"></span>
+              <div class="pct-hint" id="emailsReceivedPct">—</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="metric">Emails Sent</td>
+            <td>
+              <input id="emailsSent" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="emailsSent"></span>
+              <div class="pct-hint" id="emailsSentPct">—</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="metric">Phone Calls Incoming</td>
+            <td>
+              <input id="callsIncoming" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="callsIncoming"></span>
+              <div class="pct-hint" id="callsIncomingPct">—</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="metric">Phone Calls Outgoing</td>
+            <td>
+              <input id="callsOutgoing" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="callsOutgoing"></span>
+              <div class="pct-hint" id="callsOutgoingPct">—</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="metric">Texts/WhatsApp Messages Received</td>
+            <td>
+              <input id="messagesReceived" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="messagesReceived"></span>
+              <div class="pct-hint" id="messagesReceivedPct">—</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="metric">Texts/WhatsApp Messages Sent</td>
+            <td>
+              <input id="messagesSent" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="messagesSent"></span>
+              <div class="pct-hint" id="messagesSentPct">—</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="metric">Newsletters Distributed (Digital)</td>
+            <td>
+              <input id="newslettersDigital" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="newslettersDigital"></span>
+              <div class="pct-hint" id="newslettersDigitalPct">—</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="metric">Newsletters Distributed (Print)</td>
+            <td>
+              <input id="newslettersPrint" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="newslettersPrint"></span>
+              <div class="pct-hint" id="newslettersPrintPct">—</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="metric total-metric">Total communications volume</td>
+            <td class="total-metric">
+              <input id="commsTotal" type="number" readonly placeholder="Auto-calculated">
+              <span class="print-text" data-for="commsTotal"></span>
+              <div class="pct-hint" id="commsBreakdown">—</div>
+            </td>
+          </tr>
         </tbody>
       </table>
+      <p class="small-note">
+        Each channel shows its share of total communications volume. Email, phone and message rows
+        also show the split within that channel (e.g. received vs sent). Newsletter rows show digital
+        vs print share of all newsletters.
+      </p>
     </section>
 
     <section class="section">
@@ -303,8 +424,20 @@
           <tr><th>Feedback Type</th><th>Total</th></tr>
         </thead>
         <tbody>
-          <tr><td class="metric">Complaints Received</td><td><input id="complaints" type="number" min="0" step="1" placeholder="0"></td></tr>
-          <tr><td class="metric">Compliments Received</td><td><input id="compliments" type="number" min="0" step="1" placeholder="0"></td></tr>
+          <tr>
+            <td class="metric">Complaints Received</td>
+            <td>
+              <input id="complaints" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="complaints"></span>
+            </td>
+          </tr>
+          <tr>
+            <td class="metric">Compliments Received</td>
+            <td>
+              <input id="compliments" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="compliments"></span>
+            </td>
+          </tr>
         </tbody>
       </table>
     </section>
@@ -313,6 +446,7 @@
       <h2>Summary commentary</h2>
       <div class="field">
         <textarea id="commentary" readonly placeholder="Generated automatically when you submit the form."></textarea>
+        <div class="print-text" data-for="commentary"></div>
       </div>
     </section>
 
@@ -320,13 +454,14 @@
       <h2>Key observations</h2>
       <div class="field">
         <textarea id="observations" placeholder="Add any key observations here (optional)."></textarea>
+        <div class="print-text" data-for="observations"></div>
       </div>
     </section>
 
     <div class="actions">
       <button type="button" class="primary" id="submitBtn">Submit report</button>
       <button type="button" class="success" id="downloadBtn">Download to this device</button>
-      <button type="button" class="secondary" onclick="window.print()">Print / Save as PDF</button>
+      <button type="button" class="secondary" id="printBtn">Print / Save as PDF</button>
       <button type="button" class="danger" id="clearBtn">Clear all fields</button>
     </div>
 
@@ -342,8 +477,13 @@ const fieldIds = [
   "totalEngagements","proactiveEngagements","reactiveEngagements",
   "faceToFaceOnly","dropIn","faceToFaceTotal",
   "emailsReceived","emailsSent","callsIncoming","callsOutgoing",
-  "messagesReceived","messagesSent","newslettersDigital","newslettersPrint",
+  "messagesReceived","messagesSent","newslettersDigital","newslettersPrint","commsTotal",
   "complaints","compliments","commentary","observations"
+];
+
+const commsIds = [
+  "emailsReceived","emailsSent","callsIncoming","callsOutgoing",
+  "messagesReceived","messagesSent","newslettersDigital","newslettersPrint"
 ];
 
 function num(id) {
@@ -367,6 +507,23 @@ function formatMonthYear(iso) {
   return dt.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 }
 
+function formatDisplayValue(id, raw) {
+  if (raw === "" || raw == null) return "—";
+  if (id === "meetingDate" || id === "startDate" || id === "endDate") {
+    return formatGBDate(raw) || raw;
+  }
+  return raw;
+}
+
+function syncPrintText() {
+  document.querySelectorAll(".print-text[data-for]").forEach(el => {
+    const id = el.getAttribute("data-for");
+    const input = document.getElementById(id);
+    if (!input) return;
+    el.textContent = formatDisplayValue(id, input.value);
+  });
+}
+
 function updatePeriodFields() {
   const start = document.getElementById("startDate").value;
   const end = document.getElementById("endDate").value;
@@ -378,7 +535,7 @@ function updatePeriodFields() {
     const endDt = new Date(end + "T00:00:00");
     if (!isNaN(startDt) && !isNaN(endDt) && endDt >= startDt) {
       const ms = endDt - startDt;
-      const days = Math.round(ms / 86400000) + 1; // inclusive
+      const days = Math.round(ms / 86400000) + 1;
       daysEl.value = days;
       periodEl.value = `${formatGBDate(start)} – ${formatGBDate(end)}`;
     } else {
@@ -395,6 +552,7 @@ function updatePeriodFields() {
   if (meetingDate && !monthEl.value.trim()) {
     monthEl.value = formatMonthYear(meetingDate);
   }
+  syncPrintText();
 }
 
 function pct(part, total) {
@@ -420,17 +578,99 @@ function updatePercentages() {
   const reactive = num("reactiveEngagements");
   const faceTotal = num("faceToFaceTotal");
 
-  const pEl = document.getElementById("proactivePct");
-  const rEl = document.getElementById("reactivePct");
-  const fEl = document.getElementById("faceToFacePct");
-
   const p = pct(proactive, total);
   const r = pct(reactive, total);
   const f = pct(faceTotal, total);
 
-  pEl.textContent = p === null ? "—" : `${p}% of total`;
-  rEl.textContent = r === null ? "—" : `${r}% of total`;
-  fEl.textContent = f === null ? "—" : `${f}% of total engagements`;
+  document.getElementById("proactivePct").textContent = p === null ? "—" : `${p}% of total`;
+  document.getElementById("reactivePct").textContent = r === null ? "—" : `${r}% of total`;
+  document.getElementById("faceToFacePct").textContent = f === null ? "—" : `${f}% of total engagements`;
+}
+
+function updateCommunications() {
+  const values = {};
+  let sum = 0;
+  let any = false;
+  commsIds.forEach(id => {
+    const n = num(id);
+    values[id] = n;
+    if (n !== null) {
+      any = true;
+      sum += n;
+    }
+  });
+
+  const totalEl = document.getElementById("commsTotal");
+  totalEl.value = any ? sum : "";
+
+  function setPct(hintId, part, ofTotal, extra) {
+    const el = document.getElementById(hintId);
+    if (!el) return;
+    const share = pct(part, ofTotal);
+    let text = share === null ? "—" : `${share}% of all communications`;
+    if (extra) text += extra;
+    el.textContent = text;
+  }
+
+  const emailsR = values.emailsReceived ?? 0;
+  const emailsS = values.emailsSent ?? 0;
+  const emailTotal = emailsR + emailsS;
+  const callsIn = values.callsIncoming ?? 0;
+  const callsOut = values.callsOutgoing ?? 0;
+  const callsTotal = callsIn + callsOut;
+  const msgR = values.messagesReceived ?? 0;
+  const msgS = values.messagesSent ?? 0;
+  const msgTotal = msgR + msgS;
+  const newsD = values.newslettersDigital ?? 0;
+  const newsP = values.newslettersPrint ?? 0;
+  const newsTotal = newsD + newsP;
+
+  setPct("emailsReceivedPct", values.emailsReceived, any ? sum : null,
+    emailTotal > 0 && values.emailsReceived !== null
+      ? ` · ${pct(emailsR, emailTotal)}% of email traffic`
+      : "");
+  setPct("emailsSentPct", values.emailsSent, any ? sum : null,
+    emailTotal > 0 && values.emailsSent !== null
+      ? ` · ${pct(emailsS, emailTotal)}% of email traffic`
+      : "");
+  setPct("callsIncomingPct", values.callsIncoming, any ? sum : null,
+    callsTotal > 0 && values.callsIncoming !== null
+      ? ` · ${pct(callsIn, callsTotal)}% of phone calls`
+      : "");
+  setPct("callsOutgoingPct", values.callsOutgoing, any ? sum : null,
+    callsTotal > 0 && values.callsOutgoing !== null
+      ? ` · ${pct(callsOut, callsTotal)}% of phone calls`
+      : "");
+  setPct("messagesReceivedPct", values.messagesReceived, any ? sum : null,
+    msgTotal > 0 && values.messagesReceived !== null
+      ? ` · ${pct(msgR, msgTotal)}% of messages`
+      : "");
+  setPct("messagesSentPct", values.messagesSent, any ? sum : null,
+    msgTotal > 0 && values.messagesSent !== null
+      ? ` · ${pct(msgS, msgTotal)}% of messages`
+      : "");
+  setPct("newslettersDigitalPct", values.newslettersDigital, any ? sum : null,
+    newsTotal > 0 && values.newslettersDigital !== null
+      ? ` · ${pct(newsD, newsTotal)}% of newsletters`
+      : "");
+  setPct("newslettersPrintPct", values.newslettersPrint, any ? sum : null,
+    newsTotal > 0 && values.newslettersPrint !== null
+      ? ` · ${pct(newsP, newsTotal)}% of newsletters`
+      : "");
+
+  const breakdown = document.getElementById("commsBreakdown");
+  if (!any || sum === 0) {
+    breakdown.textContent = "—";
+  } else {
+    const parts = [];
+    if (emailTotal) parts.push(`Email ${pct(emailTotal, sum)}%`);
+    if (callsTotal) parts.push(`Phone ${pct(callsTotal, sum)}%`);
+    if (msgTotal) parts.push(`Messages ${pct(msgTotal, sum)}%`);
+    if (newsTotal) parts.push(`Newsletters ${pct(newsTotal, sum)}%`);
+    breakdown.textContent = parts.length ? parts.join(" · ") : "—";
+  }
+
+  syncPrintText();
 }
 
 function generateNarratives() {
@@ -548,6 +788,7 @@ function generateNarratives() {
   }
 
   document.getElementById("commentary").value = commentaryParts.join(" ");
+  syncPrintText();
 }
 
 function showStatus(message, isError) {
@@ -583,6 +824,7 @@ function collectData() {
   data.proactivePercent = document.getElementById("proactivePct").textContent;
   data.reactivePercent = document.getElementById("reactivePct").textContent;
   data.faceToFacePercent = document.getElementById("faceToFacePct").textContent;
+  data.commsBreakdown = document.getElementById("commsBreakdown").textContent;
   data.exportedAt = new Date().toISOString();
   return data;
 }
@@ -596,6 +838,7 @@ function submitReport() {
   updatePeriodFields();
   updateFaceToFaceTotal();
   updatePercentages();
+  updateCommunications();
   generateNarratives();
   showStatus("Report submitted. Overview and summary commentary have been generated. You can still edit observations and download or print.", false);
 }
@@ -610,9 +853,11 @@ function downloadReport() {
   updatePeriodFields();
   updateFaceToFaceTotal();
   updatePercentages();
+  updateCommunications();
   if (!document.getElementById("overview").value.trim()) {
     generateNarratives();
   }
+  syncPrintText();
 
   const data = collectData();
   const monthSlug = (data.meetingMonth || "report")
@@ -634,6 +879,15 @@ function downloadReport() {
   showStatus(`Downloaded ${filename} to this device.`, false);
 }
 
+function preparePrint() {
+  updatePeriodFields();
+  updateFaceToFaceTotal();
+  updatePercentages();
+  updateCommunications();
+  syncPrintText();
+  window.print();
+}
+
 function clearForm() {
   if (!confirm("Clear all fields? This cannot be undone.")) return;
   fieldIds.forEach(id => {
@@ -643,6 +897,13 @@ function clearForm() {
   document.getElementById("proactivePct").textContent = "—";
   document.getElementById("reactivePct").textContent = "—";
   document.getElementById("faceToFacePct").textContent = "—";
+  ["emailsReceivedPct","emailsSentPct","callsIncomingPct","callsOutgoingPct",
+   "messagesReceivedPct","messagesSentPct","newslettersDigitalPct","newslettersPrintPct",
+   "commsBreakdown"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = "—";
+  });
+  syncPrintText();
   document.getElementById("statusBanner").classList.remove("show");
 }
 
@@ -661,9 +922,26 @@ document.getElementById("meetingDate").addEventListener("change", updatePeriodFi
   });
 });
 
+commsIds.forEach(id => {
+  document.getElementById(id).addEventListener("input", updateCommunications);
+});
+
+["meetingMonth","overview","commentary","observations"].forEach(id => {
+  document.getElementById(id).addEventListener("input", syncPrintText);
+});
+
 document.getElementById("submitBtn").addEventListener("click", submitReport);
 document.getElementById("downloadBtn").addEventListener("click", downloadReport);
+document.getElementById("printBtn").addEventListener("click", preparePrint);
 document.getElementById("clearBtn").addEventListener("click", clearForm);
+
+window.addEventListener("beforeprint", () => {
+  updatePeriodFields();
+  updateFaceToFaceTotal();
+  updatePercentages();
+  updateCommunications();
+  syncPrintText();
+});
 </script>
 </body>
 </html>

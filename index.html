@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CPC Civils – Monthly Engagement Report</title>
+<title>Public Liaison Report</title>
 <style>
   :root {
     --navy:#17324d;
@@ -98,6 +98,15 @@
     font-weight:700;
   }
   td.metric { font-weight:600; }
+  td.sub-metric {
+    font-weight:500;
+    padding-left:28px;
+    color:var(--muted);
+  }
+  td.total-metric {
+    font-weight:700;
+    background:#f8fafb;
+  }
   td input { border:0; padding:4px; background:transparent; }
   td input:focus {
     outline:1px solid #9fc4dd;
@@ -105,7 +114,7 @@
   }
   td input[readonly] {
     background:transparent;
-    color:var(--muted);
+    color:var(--text);
     font-weight:600;
   }
   .pct-hint {
@@ -173,8 +182,8 @@
 
 <div class="container">
   <div class="header">
-    <h1>Monthly Engagement Report</h1>
-    <p>Client Summary</p>
+    <h1>Public Liaison Report</h1>
+    <p>Monthly engagement summary</p>
   </div>
 
   <div class="card">
@@ -244,16 +253,28 @@
             </td>
           </tr>
           <tr>
-            <td class="metric">Face-to-Face Engagements</td>
-            <td><input id="faceToFace" type="number" min="0" step="1" placeholder="0"></td>
+            <td class="sub-metric">Face-to-Face Engagements (excl. drop-ins)</td>
+            <td><input id="faceToFaceOnly" type="number" min="0" step="1" placeholder="0"></td>
           </tr>
           <tr>
-            <td class="metric">Drop-In Attendees</td>
+            <td class="sub-metric">Drop-In Attendees</td>
             <td><input id="dropIn" type="number" min="0" step="1" placeholder="0"></td>
+          </tr>
+          <tr>
+            <td class="metric total-metric">Total Face-to-Face Engagements<br><span style="font-weight:500;font-size:12px;color:var(--muted);">(Face-to-face + Drop-in attendees)</span></td>
+            <td class="total-metric">
+              <input id="faceToFaceTotal" type="number" readonly placeholder="Auto-calculated">
+              <div class="pct-hint" id="faceToFacePct">—</div>
+            </td>
           </tr>
         </tbody>
       </table>
-      <p class="small-note">Proactive and Reactive percentages are calculated from Total Engagements.</p>
+      <p class="small-note">
+        Enter face-to-face contacts and drop-in attendees separately. They are added to give
+        <strong>Total Face-to-Face Engagements</strong>. The percentage shown is total face-to-face
+        (including drop-ins) as a share of Total Engagements. Proactive and Reactive percentages are
+        also calculated from Total Engagements.
+      </p>
     </section>
 
     <section class="section">
@@ -318,7 +339,8 @@
 const fieldIds = [
   "meetingMonth","meetingDate","startDate","endDate","reportingPeriod","daysPeriod",
   "overview",
-  "totalEngagements","proactiveEngagements","reactiveEngagements","faceToFace","dropIn",
+  "totalEngagements","proactiveEngagements","reactiveEngagements",
+  "faceToFaceOnly","dropIn","faceToFaceTotal",
   "emailsReceived","emailsSent","callsIncoming","callsOutgoing",
   "messagesReceived","messagesSent","newslettersDigital","newslettersPrint",
   "complaints","compliments","commentary","observations"
@@ -359,20 +381,15 @@ function updatePeriodFields() {
       const days = Math.round(ms / 86400000) + 1; // inclusive
       daysEl.value = days;
       periodEl.value = `${formatGBDate(start)} – ${formatGBDate(end)}`;
-    } else if (endDt < startDt) {
+    } else {
       daysEl.value = "";
       periodEl.value = "";
     }
   } else {
+    periodEl.value = "";
     daysEl.value = "";
-    periodEl.value = start || end ? periodEl.value : "";
-    if (!start || !end) {
-      periodEl.value = "";
-      daysEl.value = "";
-    }
   }
 
-  // Optional: fill meeting month from meeting date if empty
   const meetingDate = document.getElementById("meetingDate").value;
   const monthEl = document.getElementById("meetingMonth");
   if (meetingDate && !monthEl.value.trim()) {
@@ -385,27 +402,44 @@ function pct(part, total) {
   return Math.round((part / total) * 100);
 }
 
+function updateFaceToFaceTotal() {
+  const faceOnly = num("faceToFaceOnly");
+  const dropIn = num("dropIn");
+  const totalEl = document.getElementById("faceToFaceTotal");
+
+  if (faceOnly === null && dropIn === null) {
+    totalEl.value = "";
+  } else {
+    totalEl.value = (faceOnly ?? 0) + (dropIn ?? 0);
+  }
+}
+
 function updatePercentages() {
   const total = num("totalEngagements");
   const proactive = num("proactiveEngagements");
   const reactive = num("reactiveEngagements");
+  const faceTotal = num("faceToFaceTotal");
 
   const pEl = document.getElementById("proactivePct");
   const rEl = document.getElementById("reactivePct");
+  const fEl = document.getElementById("faceToFacePct");
 
   const p = pct(proactive, total);
   const r = pct(reactive, total);
+  const f = pct(faceTotal, total);
 
   pEl.textContent = p === null ? "—" : `${p}% of total`;
   rEl.textContent = r === null ? "—" : `${r}% of total`;
+  fEl.textContent = f === null ? "—" : `${f}% of total engagements`;
 }
 
 function generateNarratives() {
   const total = num("totalEngagements") ?? 0;
   const proactive = num("proactiveEngagements") ?? 0;
   const reactive = num("reactiveEngagements") ?? 0;
-  const face = num("faceToFace") ?? 0;
+  const faceOnly = num("faceToFaceOnly") ?? 0;
   const dropIn = num("dropIn") ?? 0;
+  const faceTotal = num("faceToFaceTotal") ?? (faceOnly + dropIn);
   const complaints = num("complaints") ?? 0;
   const compliments = num("compliments") ?? 0;
   const emailsSent = num("emailsSent") ?? 0;
@@ -418,9 +452,8 @@ function generateNarratives() {
 
   const proactivePct = pct(proactive, total);
   const reactivePct = pct(reactive, total);
-  const facePct = pct(face, total);
+  const facePct = pct(faceTotal, total);
 
-  // Overview
   let overviewParts = [];
   if (total === 0) {
     overviewParts.push(`No engagement activity was recorded for ${period}.`);
@@ -433,11 +466,10 @@ function generateNarratives() {
         `Proactive engagement accounted for ${proactive} (${proactivePct}%) of activity, with ${reactive} (${reactivePct ?? 0}%) reactive.`
       );
     }
-    if (face > 0 || dropIn > 0) {
-      let faceLine = `Face-to-face engagements totalled ${face}`;
+    if (faceTotal > 0) {
+      let faceLine = `Total face-to-face engagements were ${faceTotal}`;
       if (facePct !== null) faceLine += ` (${facePct}% of all engagements)`;
-      if (dropIn > 0) faceLine += `, including ${dropIn} drop-in attendee${dropIn === 1 ? "" : "s"}`;
-      faceLine += ".";
+      faceLine += `, comprising ${faceOnly} face-to-face contact${faceOnly === 1 ? "" : "s"} and ${dropIn} drop-in attendee${dropIn === 1 ? "" : "s"}.`;
       overviewParts.push(faceLine);
     }
   }
@@ -454,7 +486,6 @@ function generateNarratives() {
 
   document.getElementById("overview").value = overviewParts.join(" ");
 
-  // Summary commentary
   let commentaryParts = [];
 
   if (total === 0) {
@@ -473,12 +504,20 @@ function generateNarratives() {
     );
   }
 
-  if (face > 0 && dropIn > 0) {
-    commentaryParts.push(
-      "Face-to-face contact, including drop-in attendance, supported direct stakeholder dialogue."
-    );
-  } else if (face > 0) {
-    commentaryParts.push("Face-to-face engagement contributed to direct stakeholder contact this period.");
+  if (faceTotal > 0) {
+    if (dropIn > 0 && faceOnly > 0) {
+      commentaryParts.push(
+        `Face-to-face contact totalled ${faceTotal} (${faceOnly} direct engagements plus ${dropIn} drop-in attendees), supporting direct stakeholder dialogue.`
+      );
+    } else if (dropIn > 0) {
+      commentaryParts.push(
+        `Face-to-face contact was driven by ${dropIn} drop-in attendee${dropIn === 1 ? "" : "s"}.`
+      );
+    } else {
+      commentaryParts.push(
+        `Face-to-face engagement contributed ${faceTotal} direct contact${faceTotal === 1 ? "" : "s"} this period.`
+      );
+    }
   }
 
   const newsletterTotal = newslettersDigital + newslettersPrint;
@@ -543,6 +582,7 @@ function collectData() {
   });
   data.proactivePercent = document.getElementById("proactivePct").textContent;
   data.reactivePercent = document.getElementById("reactivePct").textContent;
+  data.faceToFacePercent = document.getElementById("faceToFacePct").textContent;
   data.exportedAt = new Date().toISOString();
   return data;
 }
@@ -554,6 +594,7 @@ function submitReport() {
     return;
   }
   updatePeriodFields();
+  updateFaceToFaceTotal();
   updatePercentages();
   generateNarratives();
   showStatus("Report submitted. Overview and summary commentary have been generated. You can still edit observations and download or print.", false);
@@ -566,8 +607,8 @@ function downloadReport() {
     return;
   }
 
-  // Ensure narratives are up to date
   updatePeriodFields();
+  updateFaceToFaceTotal();
   updatePercentages();
   if (!document.getElementById("overview").value.trim()) {
     generateNarratives();
@@ -578,7 +619,7 @@ function downloadReport() {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "") || "report";
-  const filename = `cpc-monthly-engagement-${monthSlug}.json`;
+  const filename = `public-liaison-report-${monthSlug}.json`;
 
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -601,16 +642,23 @@ function clearForm() {
   });
   document.getElementById("proactivePct").textContent = "—";
   document.getElementById("reactivePct").textContent = "—";
+  document.getElementById("faceToFacePct").textContent = "—";
   document.getElementById("statusBanner").classList.remove("show");
 }
 
-// Event wiring
 document.getElementById("startDate").addEventListener("change", updatePeriodFields);
 document.getElementById("endDate").addEventListener("change", updatePeriodFields);
 document.getElementById("meetingDate").addEventListener("change", updatePeriodFields);
 
 ["totalEngagements", "proactiveEngagements", "reactiveEngagements"].forEach(id => {
   document.getElementById(id).addEventListener("input", updatePercentages);
+});
+
+["faceToFaceOnly", "dropIn"].forEach(id => {
+  document.getElementById(id).addEventListener("input", () => {
+    updateFaceToFaceTotal();
+    updatePercentages();
+  });
 });
 
 document.getElementById("submitBtn").addEventListener("click", submitReport);

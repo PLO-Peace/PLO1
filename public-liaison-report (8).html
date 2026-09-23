@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Public Liaison Report</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root {
+    --navy:#17324d;
+    --blue:#1f5f8b;
+    --light:#eef4f8;
+    --border:#cbd5df;
+    --text:#1f2933;
+    --muted:#667788;
+    --white:#fff;
+    --accent:#d9eaf5;
+    --success:#1a6b3c;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    color:var(--text);
+    min-height:100vh;
+    background-color:#d6e4ef;
+    background-image:
+      radial-gradient(ellipse 120% 80% at 10% -20%, rgba(31,95,139,.22), transparent 55%),
+      radial-gradient(ellipse 90% 70% at 95% 10%, rgba(23,50,77,.18), transparent 50%),
+      radial-gradient(ellipse 70% 50% at 50% 100%, rgba(217,234,245,.9), transparent 55%),
+      linear-gradient(165deg, #c5d8e8 0%, #e8f0f6 40%, #d0e0ec 100%),
+      repeating-linear-gradient(
+        -12deg,
+        transparent,
+        transparent 28px,
+        rgba(255,255,255,.04) 28px,
+        rgba(255,255,255,.04) 29px
+      );
+    background-attachment:fixed;
+  }
+  .container {
+    max-width:1100px;
+    margin:28px auto;
+    padding:0 18px 50px;
+  }
+  .header {
+    background:var(--navy);
+    color:white;
+    padding:25px 30px;
+    border-radius:10px 10px 0 0;
+    box-shadow:0 4px 20px rgba(23,50,77,.25);
+  }
+  .header h1 {
+    margin:0 0 6px;
+    font-size:27px;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+  }
+  .header p {
+    margin:0;
+    opacity:.9;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    font-size:13px;
+    font-weight:600;
+  }
+  .card {
+    background:rgba(255,255,255,.97);
+    border:1px solid var(--border);
+    border-top:0;
+    padding:24px 28px;
+    box-shadow:0 8px 32px rgba(23,50,77,.12);
+    border-radius:0 0 10px 10px;
+  }
+  .section { margin-bottom:26px; }
+  .section:last-child { margin-bottom:0; }
+  .section h2 {
+    margin:0 0 15px;
+    color:var(--navy);
+    font-size:19px;
+    padding-bottom:8px;
+    border-bottom:2px solid var(--accent);
+  }
+  .grid {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:15px 20px;
+  }
+  .field label {
+    display:block;
+    font-weight:700;
+    font-size:13px;
+    margin-bottom:6px;
+  }
+  input, textarea {
+    width:100%;
+    border:1px solid var(--border);
+    border-radius:5px;
+    padding:10px;
+    font:inherit;
+    color:var(--text);
+    background:white;
+  }
+  input:focus, textarea:focus {
+    outline:2px solid #9fc4dd;
+    border-color:var(--blue);
+  }
+  input[readonly], textarea[readonly] {
+    background:#f4f7fa;
+    color:var(--text);
+  }
+  textarea {
+    min-height:105px;
+    resize:vertical;
+    overflow:auto;
+  }
+  .print-text {
+    display:none;
+    white-space:pre-wrap;
+    word-wrap:break-word;
+    line-height:1.45;
+    margin:0;
+    padding:0;
+  }
+  table {
+    width:100%;
+    border-collapse:collapse;
+    margin-top:4px;
+  }
+  th, td {
+    border:1px solid var(--border);
+    padding:10px 12px;
+    text-align:left;
+    vertical-align:top;
+  }
+  th {
+    background:var(--light);
+    color:var(--navy);
+    font-weight:700;
+  }
+  td.metric { font-weight:600; }
+  td.sub-metric {
+    font-weight:500;
+    padding-left:28px;
+    color:var(--muted);
+  }
+  td.total-metric {
+    font-weight:700;
+    background:#f8fafb;
+  }
+  td input { border:0; padding:4px; background:transparent; }
+  td input:focus {
+    outline:1px solid #9fc4dd;
+    background:white;
+  }
+  td input[readonly] {
+    background:transparent;
+    color:var(--text);
+    font-weight:600;
+  }
+  .pct-hint {
+    font-size:12px;
+    color:var(--muted);
+    margin-top:4px;
+  }
+  .bank-holiday-list {
+    margin:6px 0 0;
+    padding:0;
+    list-style:none;
+    font-size:13px;
+    color:var(--text);
+  }
+  .bank-holiday-list li {
+    padding:3px 0;
+    border-bottom:1px solid #eef2f5;
+  }
+  .bank-holiday-list li:last-child { border-bottom:0; }
+  .bank-holiday-none {
+    color:var(--muted);
+    font-size:13px;
+    margin-top:6px;
+  }
+  .report-footer {
+    margin-top:28px;
+    padding-top:14px;
+    border-top:1px solid var(--border);
+    font-size:13px;
+    color:var(--muted);
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .report-footer strong { color:var(--text); }
+  .actions {
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:22px;
+  }
+  button {
+    border:0;
+    border-radius:5px;
+    padding:11px 17px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .primary { background:var(--navy); color:white; }
+  .secondary { background:#e8edf1; color:var(--navy); }
+  .success { background:#d9efe3; color:var(--success); }
+  .danger { background:#f3dddd; color:#7b1e1e; }
+  .small-note {
+    color:var(--muted);
+    font-size:12px;
+    margin-top:7px;
+    line-height:1.4;
+  }
+  .status-banner {
+    display:none;
+    margin-top:16px;
+    padding:12px 14px;
+    border-radius:6px;
+    background:#e8f5ee;
+    border:1px solid #b7dfc6;
+    color:var(--success);
+    font-size:14px;
+    font-weight:600;
+  }
+  .status-banner.show { display:block; }
+  .status-banner.error {
+    background:#fdecec;
+    border-color:#f0c0c0;
+    color:#7b1e1e;
+  }
+  @media(max-width:750px) {
+    .grid { grid-template-columns:1fr; }
+    .container { margin:12px auto; }
+    .card { padding:18px; }
+  }
+  @media print {
+    @page {
+      margin:12mm;
+    }
+    body {
+      background:white !important;
+      background-image:none !important;
+    }
+    .actions, .status-banner { display:none !important; }
+    .container { max-width:none; margin:0; padding:0; }
+    .header {
+      border-radius:0;
+      box-shadow:none;
+      -webkit-print-color-adjust:exact;
+      print-color-adjust:exact;
+    }
+    .card {
+      border:0;
+      padding:16px 0;
+      box-shadow:none;
+      background:white;
+    }
+    input, textarea { display:none !important; }
+    .print-text {
+      display:block !important;
+      white-space:pre-wrap;
+      word-wrap:break-word;
+      overflow:visible;
+      height:auto !important;
+      min-height:0 !important;
+      max-height:none !important;
+      border:0;
+      padding:0;
+      margin:0;
+      background:transparent;
+      font:inherit;
+      color:var(--text);
+      line-height:1.45;
+    }
+    td .print-text { display:inline !important; }
+    .pct-hint { color:var(--text); }
+    .bank-holiday-list, .bank-holiday-none { display:block !important; }
+    .small-note { display:none; }
+    .report-footer {
+      display:flex !important;
+      color:var(--text);
+      border-top:1px solid #ccc;
+    }
+    .section { break-inside:avoid; page-break-inside:avoid; }
+    .section h2 { break-after:avoid; }
+  }
+
+  /* Compact layout for PDF generation — high-contrast for readability only */
+  #pdfClone,
+  .pdf-clone-page {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 794px;
+    background: #fff;
+    color: #0b1220;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10.5px;
+    line-height: 1.4;
+    padding: 0;
+    margin: 0;
+    z-index: 2147483645;
+    box-sizing: border-box;
+    pointer-events: none;
+    -webkit-font-smoothing: antialiased;
+  }
+  #pdfOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,.92);
+    z-index: 2147483646;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #0b1220;
+  }
+  #pdfClone .pdf-header, .pdf-clone-page .pdf-header {
+    background: #0f2740;
+    color: #fff;
+    padding: 12px 16px;
+    margin: 0 0 10px 0;
+  }
+  #pdfClone .pdf-header h1, .pdf-clone-page .pdf-header h1 {
+    margin: 0 0 2px 0;
+    font-size: 17px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: #fff;
+  }
+  #pdfClone .pdf-header p, .pdf-clone-page .pdf-header p {
+    margin: 0;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 1;
+    font-weight: 700;
+    color: #d6e8f5;
+  }
+  #pdfClone .pdf-body, .pdf-clone-page .pdf-body {
+    padding: 0 14px 12px 14px;
+  }
+  #pdfClone h2, .pdf-clone-page h2 {
+    margin: 10px 0 6px 0;
+    color: #0f2740;
+    font-size: 12.5px;
+    font-weight: 800;
+    padding: 4px 8px;
+    background: #d6e8f5;
+    border-bottom: 2px solid #0f2740;
+    border-left: 4px solid #0f2740;
+  }
+  #pdfClone .pdf-grid, .pdf-clone-page .pdf-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 16px;
+    margin-bottom: 4px;
+  }
+  #pdfClone .pdf-label, .pdf-clone-page .pdf-label {
+    font-weight: 800;
+    font-size: 9.5px;
+    color: #0f2740;
+  }
+  #pdfClone .pdf-value, .pdf-clone-page .pdf-value {
+    font-size: 11px;
+    font-weight: 600;
+    color: #0b1220;
+    margin-bottom: 4px;
+  }
+  #pdfClone .pdf-narrative, .pdf-clone-page .pdf-narrative {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    margin: 0 0 6px 0;
+    font-size: 10.5px;
+    font-weight: 500;
+    color: #0b1220;
+    line-height: 1.45;
+  }
+  #pdfClone table, .pdf-clone-page table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 4px 0 8px 0;
+    font-size: 10px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  #pdfClone th, #pdfClone td, .pdf-clone-page th, .pdf-clone-page td {
+    border: 1.5px solid #3d5a73;
+    padding: 5px 7px;
+    text-align: left;
+    vertical-align: top;
+  }
+  #pdfClone th, .pdf-clone-page th {
+    background: #0f2740;
+    color: #fff;
+    font-weight: 800;
+  }
+  #pdfClone tbody tr:nth-child(even) td, .pdf-clone-page tbody tr:nth-child(even) td {
+    background: #eef5fa;
+  }
+  #pdfClone tbody tr:nth-child(odd) td, .pdf-clone-page tbody tr:nth-child(odd) td {
+    background: #fff;
+  }
+  #pdfClone td.metric, .pdf-clone-page td.metric {
+    font-weight: 800;
+    color: #0b1220;
+  }
+  #pdfClone td.sub, .pdf-clone-page td.sub {
+    padding-left: 14px;
+    color: #1a3348;
+    font-weight: 600;
+  }
+  #pdfClone td.sub span, .pdf-clone-page td.sub span {
+    color: #1a3348 !important;
+    font-weight: 600 !important;
+  }
+  #pdfClone .pct, .pdf-clone-page .pct {
+    font-size: 9px;
+    color: #0f2740;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+  #pdfClone .pdf-footer, .pdf-clone-page .pdf-footer {
+    margin-top: 8px;
+    padding: 8px 10px;
+    border-top: 2px solid #0f2740;
+    background: #eef5fa;
+    font-size: 10px;
+    color: #0b1220;
+    font-weight: 600;
+  }
+  #pdfClone .pdf-footer strong, .pdf-clone-page .pdf-footer strong {
+    color: #0f2740;
+    font-weight: 800;
+  }
+  #pdfClone .bh-list, .pdf-clone-page .bh-list {
+    margin: 2px 0 6px 0;
+    padding: 0;
+    list-style: none;
+    font-size: 10px;
+    font-weight: 600;
+    color: #0b1220;
+  }
+  #pdfClone .bh-list li, .pdf-clone-page .bh-list li { padding: 1px 0; }
+  #pdfClone .pdf-page-break, .pdf-clone-page .pdf-page-break {
+    break-after: page;
+    page-break-after: always;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  #pdfClone .pdf-notes-box, .pdf-clone-page .pdf-notes-box {
+    min-height: 160px;
+    border: 2px solid #0f2740;
+    background: #fff;
+    margin: 4px 0 8px 0;
+    padding: 8px 10px;
+    box-sizing: border-box;
+  }
+  #pdfClone .pdf-notes-box .pdf-notes-label, .pdf-clone-page .pdf-notes-box .pdf-notes-label {
+    font-weight: 800;
+    font-size: 9.5px;
+    color: #0f2740;
+    margin-bottom: 6px;
+  }
+  #pdfClone .pdf-notes-box .pdf-notes-body, .pdf-clone-page .pdf-notes-box .pdf-notes-body {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10.5px;
+    font-weight: 500;
+    color: #0b1220;
+    min-height: 120px;
+  }
+  textarea.notes-box {
+    min-height: 180px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container" id="reportRoot">
+  <div class="header">
+    <h1>Public Liaison Report</h1>
+    <p>Monthly engagement summary</p>
+  </div>
+
+  <div class="card">
+
+    <section class="section">
+      <h2>Reporting period</h2>
+      <div class="grid">
+        <div class="field">
+          <label for="meetingMonth">Meeting Month</label>
+          <input id="meetingMonth" placeholder="e.g. September 2026">
+          <div class="print-text" data-for="meetingMonth"></div>
+        </div>
+        <div class="field">
+          <label for="meetingDate">Meeting Date</label>
+          <input id="meetingDate" type="date">
+          <div class="print-text" data-for="meetingDate"></div>
+        </div>
+        <div class="field">
+          <label for="startDate">Period Start Date</label>
+          <input id="startDate" type="date">
+          <div class="print-text" data-for="startDate"></div>
+        </div>
+        <div class="field">
+          <label for="endDate">Period End Date</label>
+          <input id="endDate" type="date">
+          <div class="print-text" data-for="endDate"></div>
+        </div>
+        <div class="field">
+          <label for="reportingPeriod">Reporting Period</label>
+          <input id="reportingPeriod" readonly placeholder="Auto-filled from start &amp; end dates">
+          <div class="print-text" data-for="reportingPeriod"></div>
+        </div>
+        <div class="field">
+          <label for="daysPeriod">Calendar days in period</label>
+          <input id="daysPeriod" type="number" readonly placeholder="Auto-calculated">
+          <div class="print-text" data-for="daysPeriod"></div>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:15px;">
+        <label for="bankHolidaySummary">UK bank holidays in period</label>
+        <input id="bankHolidaySummary" readonly placeholder="Select start and end dates">
+        <div class="print-text" data-for="bankHolidaySummary"></div>
+        <ul id="bankHolidayList" class="bank-holiday-list" hidden></ul>
+        <p id="bankHolidayNone" class="bank-holiday-none" hidden>No UK bank holidays fall within this period.</p>
+      </div>
+
+      <p class="small-note">
+        <strong>Calendar days</strong> count every day from start to end, including weekends and bank holidays.
+        The bank holiday field lists any England &amp; Wales public holidays that fall inside the reporting period
+        (these are non-working days).
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Engagement overview</h2>
+      <div class="field">
+        <label for="overview">Overview / narrative</label>
+        <textarea id="overview" readonly placeholder="Generated automatically when you submit the form."></textarea>
+        <div class="print-text" data-for="overview"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Engagement activity summary</h2>
+      <table>
+        <thead>
+          <tr><th>Engagement Metric</th><th>Total</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="metric">Total Engagements</td>
+            <td>
+              <input id="totalEngagements" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="totalEngagements"></span>
+            </td>
+          </tr>
+          <tr>
+            <td class="metric">Proactive Engagements</td>
+            <td>
+              <input id="proactiveEngagements" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="proactiveEngagements"></span>
+              <div class="pct-hint" id="proactivePct">—</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="metric">Reactive Engagements</td>
+            <td>
+              <input id="reactiveEngagements" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="reactiveEngagements"></span>
+              <div class="pct-hint" id="reactivePct">—</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="sub-metric">Face-to-Face Engagements (excl. drop-ins)</td>
+            <td>
+              <input id="faceToFaceOnly" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="faceToFaceOnly"></span>
+            </td>
+          </tr>
+          <tr>
+            <td class="sub-metric">Drop-In Attendees</td>
+            <td>
+              <input id="dropIn" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="dropIn"></span>
+            </td>
+          </tr>
+          <tr>
+            <td class="metric total-metric">Total Face-to-Face Engagements<br><span style="font-weight:500;font-size:12px;color:var(--muted);">(Face-to-face + Drop-in attendees)</span></td>
+            <td class="total-metric">
+              <input id="faceToFaceTotal" type="number" readonly placeholder="Auto-calculated">
+              <span class="print-text" data-for="faceToFaceTotal"></span>
+              <div class="pct-hint" id="faceToFacePct">—</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="small-note">
+        Enter face-to-face contacts and drop-in attendees separately. They are added to give
+        <strong>Total Face-to-Face Engagements</strong>. The percentage shown is total face-to-face
+        (including drop-ins) as a share of Total Engagements.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Communications summary</h2>
+      <table>
+        <thead>
+          <tr><th>Communication Type</th><th>Total</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="metric">Emails Received</td>
+            <td>
+              <input id="emailsReceived" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="emailsReceived"></span>
+              <div class="pct-hint" id="emailsReceivedPct">—</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="metric">Emails Sent</td>
+            <td>
+              <input id="emailsSent" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="emailsSent"></span>
+              <div class="pct-hint" id="emailsSentPct">—</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="metric">Phone Calls Incoming</td>
+            <td>
+              <input id="callsIncoming" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="callsIncoming"></span>
+              <div class="pct-hint" id="callsIncomingPct">—</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="metric">Phone Calls Outgoing</td>
+            <td>
+              <input id="callsOutgoing" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="callsOutgoing"></span>
+              <div class="pct-hint" id="callsOutgoingPct">—</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="metric">Texts/WhatsApp Messages Received</td>
+            <td>
+              <input id="messagesReceived" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="messagesReceived"></span>
+              <div class="pct-hint" id="messagesReceivedPct">—</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="metric">Texts/WhatsApp Messages Sent</td>
+            <td>
+              <input id="messagesSent" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="messagesSent"></span>
+              <div class="pct-hint" id="messagesSentPct">—</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="sub-metric">Newsletters Distributed (Digital)<br><span style="font-weight:400;font-size:11px;">(included within Emails Sent — not added again below)</span></td>
+            <td>
+              <input id="newslettersDigital" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="newslettersDigital"></span>
+              <div class="pct-hint" id="newslettersDigitalPct">—</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="sub-metric">Newsletters Distributed (Print)<br><span style="font-weight:400;font-size:11px;">(included within Total Face-to-Face — not added again below)</span></td>
+            <td>
+              <input id="newslettersPrint" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="newslettersPrint"></span>
+              <div class="pct-hint" id="newslettersPrintPct">—</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="metric total-metric">Total communications volume<br><span style="font-weight:500;font-size:12px;color:var(--muted);">(Emails + Phone + Messages only — newsletters excluded to avoid double-counting)</span></td>
+            <td class="total-metric">
+              <input id="commsTotal" type="number" readonly placeholder="Auto-calculated">
+              <span class="print-text" data-for="commsTotal"></span>
+              <div class="pct-hint" id="commsBreakdown">—</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="small-note">
+        Digital newsletters are already counted inside <strong>Emails Sent</strong>. Print newsletters are already counted inside
+        <strong>Total Face-to-Face Engagements</strong>. They are shown here for detail only and are <strong>not</strong> added again into
+        Total communications volume. Email, phone and message volumes also show their share of Total Engagements.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Feedback</h2>
+      <table>
+        <thead>
+          <tr><th>Feedback Type</th><th>Total</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="metric">Complaints Received</td>
+            <td>
+              <input id="complaints" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="complaints"></span>
+            </td>
+          </tr>
+          <tr>
+            <td class="metric">Compliments Received</td>
+            <td>
+              <input id="compliments" type="number" min="0" step="1" placeholder="0">
+              <span class="print-text" data-for="compliments"></span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2>Summary commentary</h2>
+      <div class="field">
+        <textarea id="commentary" readonly placeholder="Generated automatically when you submit the form."></textarea>
+        <div class="print-text" data-for="commentary"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Key observations</h2>
+      <div class="field">
+        <textarea id="observations" placeholder="Add any key observations here (optional)."></textarea>
+        <div class="print-text" data-for="observations"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Additional notes</h2>
+      <div class="field">
+        <label for="additionalNotes">Space for handwritten or typed notes</label>
+        <textarea id="additionalNotes" class="notes-box" placeholder="Use this space for extra notes after printing, or type them here before downloading."></textarea>
+        <div class="print-text" data-for="additionalNotes"></div>
+      </div>
+      <p class="small-note">This large box is included on the PDF so you can add handwritten notes later if needed.</p>
+    </section>
+
+    <div class="report-footer" id="reportFooter">
+      <div>
+        <strong>Submitted:</strong>
+        <span id="submittedDisplay">Not yet submitted</span>
+      </div>
+      <div id="submittedIso" hidden></div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="primary" id="submitBtn">Submit report</button>
+      <button type="button" class="success" id="downloadBtn">Download PDF</button>
+      <button type="button" class="secondary" id="printBtn">Print / Save as PDF</button>
+      <button type="button" class="danger" id="clearBtn">Clear all fields</button>
+    </div>
+
+    <div id="statusBanner" class="status-banner" role="status" aria-live="polite"></div>
+
+  </div>
+</div>
+
+<script>
+/* England & Wales bank holidays 2024-2030 (including substitutes) */
+const UK_BANK_HOLIDAYS = [
+  { date: "2024-01-01", name: "New Year's Day" },
+  { date: "2024-03-29", name: "Good Friday" },
+  { date: "2024-04-01", name: "Easter Monday" },
+  { date: "2024-05-06", name: "Early May bank holiday" },
+  { date: "2024-05-27", name: "Spring bank holiday" },
+  { date: "2024-08-26", name: "Summer bank holiday" },
+  { date: "2024-12-25", name: "Christmas Day" },
+  { date: "2024-12-26", name: "Boxing Day" },
+  { date: "2025-01-01", name: "New Year's Day" },
+  { date: "2025-04-18", name: "Good Friday" },
+  { date: "2025-04-21", name: "Easter Monday" },
+  { date: "2025-05-05", name: "Early May bank holiday" },
+  { date: "2025-05-26", name: "Spring bank holiday" },
+  { date: "2025-08-25", name: "Summer bank holiday" },
+  { date: "2025-12-25", name: "Christmas Day" },
+  { date: "2025-12-26", name: "Boxing Day" },
+  { date: "2026-01-01", name: "New Year's Day" },
+  { date: "2026-04-03", name: "Good Friday" },
+  { date: "2026-04-06", name: "Easter Monday" },
+  { date: "2026-05-04", name: "Early May bank holiday" },
+  { date: "2026-05-25", name: "Spring bank holiday" },
+  { date: "2026-08-31", name: "Summer bank holiday" },
+  { date: "2026-12-25", name: "Christmas Day" },
+  { date: "2026-12-28", name: "Boxing Day (substitute)" },
+  { date: "2027-01-01", name: "New Year's Day" },
+  { date: "2027-03-26", name: "Good Friday" },
+  { date: "2027-03-29", name: "Easter Monday" },
+  { date: "2027-05-03", name: "Early May bank holiday" },
+  { date: "2027-05-31", name: "Spring bank holiday" },
+  { date: "2027-08-30", name: "Summer bank holiday" },
+  { date: "2027-12-27", name: "Christmas Day (substitute)" },
+  { date: "2027-12-28", name: "Boxing Day (substitute)" },
+  { date: "2028-01-03", name: "New Year's Day (substitute)" },
+  { date: "2028-04-14", name: "Good Friday" },
+  { date: "2028-04-17", name: "Easter Monday" },
+  { date: "2028-05-01", name: "Early May bank holiday" },
+  { date: "2028-05-29", name: "Spring bank holiday" },
+  { date: "2028-08-28", name: "Summer bank holiday" },
+  { date: "2028-12-25", name: "Christmas Day" },
+  { date: "2028-12-26", name: "Boxing Day" },
+  { date: "2029-01-01", name: "New Year's Day" },
+  { date: "2029-03-30", name: "Good Friday" },
+  { date: "2029-04-02", name: "Easter Monday" },
+  { date: "2029-05-07", name: "Early May bank holiday" },
+  { date: "2029-05-28", name: "Spring bank holiday" },
+  { date: "2029-08-27", name: "Summer bank holiday" },
+  { date: "2029-12-25", name: "Christmas Day" },
+  { date: "2029-12-26", name: "Boxing Day" },
+  { date: "2030-01-01", name: "New Year's Day" },
+  { date: "2030-04-19", name: "Good Friday" },
+  { date: "2030-04-22", name: "Easter Monday" },
+  { date: "2030-05-06", name: "Early May bank holiday" },
+  { date: "2030-05-27", name: "Spring bank holiday" },
+  { date: "2030-08-26", name: "Summer bank holiday" },
+  { date: "2030-12-25", name: "Christmas Day" },
+  { date: "2030-12-26", name: "Boxing Day" }
+];
+
+const fieldIds = [
+  "meetingMonth","meetingDate","startDate","endDate","reportingPeriod","daysPeriod","bankHolidaySummary",
+  "overview",
+  "totalEngagements","proactiveEngagements","reactiveEngagements",
+  "faceToFaceOnly","dropIn","faceToFaceTotal",
+  "emailsReceived","emailsSent","callsIncoming","callsOutgoing",
+  "messagesReceived","messagesSent","newslettersDigital","newslettersPrint","commsTotal",
+  "complaints","compliments","commentary","observations","additionalNotes"
+];
+
+/* Core communication channels only (newsletters are subsets — not summed again) */
+const commsIds = [
+  "emailsReceived","emailsSent","callsIncoming","callsOutgoing",
+  "messagesReceived","messagesSent"
+];
+const newsletterIds = ["newslettersDigital","newslettersPrint"];
+
+let submittedAt = null;
+
+function num(id) {
+  const v = document.getElementById(id).value;
+  if (v === "" || v === null) return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+
+function formatGBDate(iso) {
+  if (!iso) return "";
+  const [y, m, d] = iso.split("-");
+  if (!y || !m || !d) return "";
+  return d + "/" + m + "/" + y.slice(2);
+}
+
+function formatSubmittedDate(dateObj) {
+  return dateObj.toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  }) + " at " + dateObj.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function formatMonthYear(iso) {
+  if (!iso) return "";
+  const dt = new Date(iso + "T00:00:00");
+  if (isNaN(dt)) return "";
+  return dt.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+}
+
+function formatDisplayValue(id, raw) {
+  if (raw === "" || raw == null) return "—";
+  if (id === "meetingDate" || id === "startDate" || id === "endDate") {
+    return formatGBDate(raw) || raw;
+  }
+  return raw;
+}
+
+function syncPrintText() {
+  document.querySelectorAll(".print-text[data-for]").forEach(function(el) {
+    const id = el.getAttribute("data-for");
+    const input = document.getElementById(id);
+    if (!input) return;
+    el.textContent = formatDisplayValue(id, input.value);
+  });
+}
+
+function holidaysInRange(startIso, endIso) {
+  if (!startIso || !endIso) return [];
+  return UK_BANK_HOLIDAYS.filter(function(h) {
+    return h.date >= startIso && h.date <= endIso;
+  });
+}
+
+function updateBankHolidays() {
+  const start = document.getElementById("startDate").value;
+  const end = document.getElementById("endDate").value;
+  const summaryEl = document.getElementById("bankHolidaySummary");
+  const listEl = document.getElementById("bankHolidayList");
+  const noneEl = document.getElementById("bankHolidayNone");
+
+  listEl.innerHTML = "";
+  listEl.hidden = true;
+  noneEl.hidden = true;
+
+  if (!start || !end) {
+    summaryEl.value = "";
+    syncPrintText();
+    return;
+  }
+
+  const startDt = new Date(start + "T00:00:00");
+  const endDt = new Date(end + "T00:00:00");
+  if (isNaN(startDt) || isNaN(endDt) || endDt < startDt) {
+    summaryEl.value = "";
+    syncPrintText();
+    return;
+  }
+
+  const found = holidaysInRange(start, end);
+
+  if (found.length === 0) {
+    summaryEl.value = "None — no UK bank holidays in this period";
+    noneEl.hidden = false;
+  } else {
+    summaryEl.value = found.length + " UK bank holiday" + (found.length === 1 ? "" : "s") + " included (non-working days)";
+    found.forEach(function(h) {
+      const li = document.createElement("li");
+      li.textContent = formatGBDate(h.date) + " — " + h.name;
+      listEl.appendChild(li);
+    });
+    listEl.hidden = false;
+  }
+  syncPrintText();
+}
+
+function updatePeriodFields() {
+  const start = document.getElementById("startDate").value;
+  const end = document.getElementById("endDate").value;
+  const periodEl = document.getElementById("reportingPeriod");
+  const daysEl = document.getElementById("daysPeriod");
+
+  if (start && end) {
+    const startDt = new Date(start + "T00:00:00");
+    const endDt = new Date(end + "T00:00:00");
+    if (!isNaN(startDt) && !isNaN(endDt) && endDt >= startDt) {
+      const ms = endDt - startDt;
+      const days = Math.round(ms / 86400000) + 1;
+      daysEl.value = days;
+      periodEl.value = formatGBDate(start) + " – " + formatGBDate(end);
+    } else {
+      daysEl.value = "";
+      periodEl.value = "";
+    }
+  } else {
+    periodEl.value = "";
+    daysEl.value = "";
+  }
+
+  const meetingDate = document.getElementById("meetingDate").value;
+  const monthEl = document.getElementById("meetingMonth");
+  if (meetingDate && !monthEl.value.trim()) {
+    monthEl.value = formatMonthYear(meetingDate);
+  }
+
+  updateBankHolidays();
+  syncPrintText();
+}
+
+function pct(part, total) {
+  if (total === null || total === 0 || part === null) return null;
+  return Math.round((part / total) * 100);
+}
+
+function updateFaceToFaceTotal() {
+  const faceOnly = num("faceToFaceOnly");
+  const dropIn = num("dropIn");
+  const totalEl = document.getElementById("faceToFaceTotal");
+  if (faceOnly === null && dropIn === null) {
+    totalEl.value = "";
+  } else {
+    totalEl.value = (faceOnly ?? 0) + (dropIn ?? 0);
+  }
+}
+
+function updatePercentages() {
+  const total = num("totalEngagements");
+  const proactive = num("proactiveEngagements");
+  const reactive = num("reactiveEngagements");
+  const faceTotal = num("faceToFaceTotal");
+  const p = pct(proactive, total);
+  const r = pct(reactive, total);
+  const f = pct(faceTotal, total);
+  document.getElementById("proactivePct").textContent = p === null ? "—" : p + "% of total";
+  document.getElementById("reactivePct").textContent = r === null ? "—" : r + "% of total";
+  document.getElementById("faceToFacePct").textContent = f === null ? "—" : f + "% of total engagements";
+}
+
+function updateCommunications() {
+  const values = {};
+  let sum = 0;
+  let any = false;
+  commsIds.forEach(function(id) {
+    const n = num(id);
+    values[id] = n;
+    if (n !== null) { any = true; sum += n; }
+  });
+
+  /* Newsletters are subsets — tracked separately, not added into communications volume */
+  const newsD = num("newslettersDigital");
+  const newsP = num("newslettersPrint");
+  values.newslettersDigital = newsD;
+  values.newslettersPrint = newsP;
+
+  document.getElementById("commsTotal").value = any ? sum : "";
+
+  const engagementTotal = num("totalEngagements");
+  const faceTotal = num("faceToFaceTotal");
+
+  function setHint(hintId, text) {
+    const el = document.getElementById(hintId);
+    if (el) el.textContent = text || "—";
+  }
+
+  function channelHint(part, ofComms, ofEngagement, channelExtra) {
+    const bits = [];
+    const c = pct(part, ofComms);
+    if (c !== null) bits.push(c + "% of communications");
+    const e = pct(part, ofEngagement);
+    if (e !== null) bits.push(e + "% of total engagements");
+    if (channelExtra) bits.push(channelExtra);
+    return bits.length ? bits.join(" · ") : "—";
+  }
+
+  const emailsR = values.emailsReceived ?? 0;
+  const emailsS = values.emailsSent ?? 0;
+  const emailTotal = emailsR + emailsS;
+  const callsIn = values.callsIncoming ?? 0;
+  const callsOut = values.callsOutgoing ?? 0;
+  const callsTotal = callsIn + callsOut;
+  const msgR = values.messagesReceived ?? 0;
+  const msgS = values.messagesSent ?? 0;
+  const msgTotal = msgR + msgS;
+  const ofComms = any ? sum : null;
+
+  setHint("emailsReceivedPct", channelHint(values.emailsReceived, ofComms, engagementTotal,
+    emailTotal > 0 && values.emailsReceived !== null ? pct(emailsR, emailTotal) + "% of email traffic" : ""));
+  setHint("emailsSentPct", channelHint(values.emailsSent, ofComms, engagementTotal,
+    emailTotal > 0 && values.emailsSent !== null ? pct(emailsS, emailTotal) + "% of email traffic" : ""));
+  setHint("callsIncomingPct", channelHint(values.callsIncoming, ofComms, engagementTotal,
+    callsTotal > 0 && values.callsIncoming !== null ? pct(callsIn, callsTotal) + "% of phone calls" : ""));
+  setHint("callsOutgoingPct", channelHint(values.callsOutgoing, ofComms, engagementTotal,
+    callsTotal > 0 && values.callsOutgoing !== null ? pct(callsOut, callsTotal) + "% of phone calls" : ""));
+  setHint("messagesReceivedPct", channelHint(values.messagesReceived, ofComms, engagementTotal,
+    msgTotal > 0 && values.messagesReceived !== null ? pct(msgR, msgTotal) + "% of messages" : ""));
+  setHint("messagesSentPct", channelHint(values.messagesSent, ofComms, engagementTotal,
+    msgTotal > 0 && values.messagesSent !== null ? pct(msgS, msgTotal) + "% of messages" : ""));
+
+  /* Digital newsletters ⊂ Emails Sent */
+  {
+    const bits = [];
+    if (newsD !== null && emailsS > 0) bits.push(pct(newsD, emailsS) + "% of Emails Sent");
+    if (newsD !== null && engagementTotal) bits.push(pct(newsD, engagementTotal) + "% of total engagements");
+    bits.push("already included in Emails Sent");
+    setHint("newslettersDigitalPct", newsD === null ? "—" : bits.join(" · "));
+  }
+
+  /* Print newsletters ⊂ Total Face-to-Face */
+  {
+    const bits = [];
+    if (newsP !== null && faceTotal) bits.push(pct(newsP, faceTotal) + "% of Total Face-to-Face");
+    if (newsP !== null && engagementTotal) bits.push(pct(newsP, engagementTotal) + "% of total engagements");
+    bits.push("already included in Face-to-Face");
+    setHint("newslettersPrintPct", newsP === null ? "—" : bits.join(" · "));
+  }
+
+  const breakdown = document.getElementById("commsBreakdown");
+  if (!any || sum === 0) {
+    breakdown.textContent = "—";
+  } else {
+    const parts = [];
+    if (emailTotal) parts.push("Email " + pct(emailTotal, sum) + "%");
+    if (callsTotal) parts.push("Phone " + pct(callsTotal, sum) + "%");
+    if (msgTotal) parts.push("Messages " + pct(msgTotal, sum) + "%");
+    let text = parts.length ? parts.join(" · ") : "—";
+    if (engagementTotal) {
+      const share = pct(sum, engagementTotal);
+      if (share !== null) text += " · " + share + "% of total engagements";
+    }
+    breakdown.textContent = text;
+  }
+  syncPrintText();
+}
+
+function generateNarratives() {
+  const total = num("totalEngagements") ?? 0;
+  const proactive = num("proactiveEngagements") ?? 0;
+  const reactive = num("reactiveEngagements") ?? 0;
+  const faceOnly = num("faceToFaceOnly") ?? 0;
+  const dropIn = num("dropIn") ?? 0;
+  const faceTotal = num("faceToFaceTotal") ?? (faceOnly + dropIn);
+  const complaints = num("complaints") ?? 0;
+  const compliments = num("compliments") ?? 0;
+  const emailsSent = num("emailsSent") ?? 0;
+  const emailsReceived = num("emailsReceived") ?? 0;
+  const newslettersDigital = num("newslettersDigital") ?? 0;
+  const newslettersPrint = num("newslettersPrint") ?? 0;
+  const days = num("daysPeriod");
+  const period = document.getElementById("reportingPeriod").value || "the reporting period";
+  const month = document.getElementById("meetingMonth").value || "this period";
+  const bankSummary = document.getElementById("bankHolidaySummary").value;
+
+  const proactivePct = pct(proactive, total);
+  const reactivePct = pct(reactive, total);
+  const facePct = pct(faceTotal, total);
+
+  const overviewParts = [];
+  if (total === 0) {
+    overviewParts.push("No engagement activity was recorded for " + period + ".");
+  } else {
+    overviewParts.push(
+      "During " + period + (days ? " (" + days + " calendar days)" : "") + ", a total of " + total + " engagements were recorded."
+    );
+    if (bankSummary && bankSummary.indexOf("None") !== 0) {
+      overviewParts.push("This period included UK bank holidays (non-working days): " + bankSummary.replace(" included (non-working days)", "") + ".");
+    }
+    if (proactivePct !== null) {
+      overviewParts.push(
+        "Proactive engagement accounted for " + proactive + " (" + proactivePct + "%) of activity, with " + reactive + " (" + (reactivePct ?? 0) + "%) reactive."
+      );
+    }
+    if (faceTotal > 0) {
+      let faceLine = "Total face-to-face engagements were " + faceTotal;
+      if (facePct !== null) faceLine += " (" + facePct + "% of all engagements)";
+      faceLine += ", comprising " + faceOnly + " face-to-face contact" + (faceOnly === 1 ? "" : "s") + " and " + dropIn + " drop-in attendee" + (dropIn === 1 ? "" : "s") + ".";
+      overviewParts.push(faceLine);
+    }
+  }
+
+  if (complaints === 0 && compliments === 0) {
+    overviewParts.push("No complaints or compliments were received during the period.");
+  } else if (complaints === 0) {
+    overviewParts.push(compliments + " compliment" + (compliments === 1 ? "" : "s") + " received; no complaints.");
+  } else {
+    overviewParts.push(
+      complaints + " complaint" + (complaints === 1 ? "" : "s") + " and " + compliments + " compliment" + (compliments === 1 ? "" : "s") + " were received."
+    );
+  }
+
+  document.getElementById("overview").value = overviewParts.join(" ");
+
+  const commentaryParts = [];
+  if (total === 0) {
+    commentaryParts.push("Activity levels were minimal for this reporting period.");
+  } else if (proactivePct !== null && proactivePct >= 85) {
+    commentaryParts.push("Engagement remained strongly proactive, consistent with a planned outreach approach rather than reactive issue management.");
+  } else if (proactivePct !== null && proactivePct >= 70) {
+    commentaryParts.push("The majority of engagements were proactive, indicating steady planned contact with stakeholders.");
+  } else if (proactivePct !== null) {
+    commentaryParts.push("Reactive engagement formed a more significant share of activity this period and may warrant further review.");
+  }
+
+  if (faceTotal > 0) {
+    if (dropIn > 0 && faceOnly > 0) {
+      commentaryParts.push("Face-to-face contact totalled " + faceTotal + " (" + faceOnly + " direct engagements plus " + dropIn + " drop-in attendees), supporting direct stakeholder dialogue.");
+    } else if (dropIn > 0) {
+      commentaryParts.push("Face-to-face contact was driven by " + dropIn + " drop-in attendee" + (dropIn === 1 ? "" : "s") + ".");
+    } else {
+      commentaryParts.push("Face-to-face engagement contributed " + faceTotal + " direct contact" + (faceTotal === 1 ? "" : "s") + " this period.");
+    }
+  }
+
+  const newsletterTotal = newslettersDigital + newslettersPrint;
+  if (newsletterTotal > 0) {
+    commentaryParts.push("Newsletter distribution totalled " + newsletterTotal + " (" + newslettersDigital + " digital, " + newslettersPrint + " print).");
+  }
+  if (emailsSent > 0 || emailsReceived > 0) {
+    commentaryParts.push("Email traffic comprised " + emailsSent + " outgoing and " + emailsReceived + " incoming messages.");
+  }
+  if (complaints === 0) {
+    commentaryParts.push("No formal complaints were logged, supporting a stable sentiment position for " + month + ".");
+  } else {
+    commentaryParts.push("Complaints were recorded and should be tracked through to closure as part of ongoing stakeholder management.");
+  }
+  if (compliments > 0) {
+    commentaryParts.push(compliments + " compliment" + (compliments === 1 ? " was" : "s were") + " received, reflecting positive stakeholder feedback.");
+  }
+
+  document.getElementById("commentary").value = commentaryParts.join(" ");
+  syncPrintText();
+}
+
+function setSubmittedNow() {
+  submittedAt = new Date();
+  document.getElementById("submittedDisplay").textContent = formatSubmittedDate(submittedAt);
+  document.getElementById("submittedIso").textContent = submittedAt.toISOString();
+}
+
+function showStatus(message, isError) {
+  const el = document.getElementById("statusBanner");
+  el.textContent = message;
+  el.classList.toggle("error", !!isError);
+  el.classList.add("show");
+}
+
+function validateForSubmit() {
+  const start = document.getElementById("startDate").value;
+  const end = document.getElementById("endDate").value;
+  if (!start || !end) return "Please enter both Period Start Date and Period End Date.";
+  const startDt = new Date(start + "T00:00:00");
+  const endDt = new Date(end + "T00:00:00");
+  if (endDt < startDt) return "Period End Date must be on or after Period Start Date.";
+  if (num("totalEngagements") === null) return "Please enter Total Engagements (use 0 if none).";
+  return null;
+}
+
+function submitReport() {
+  const error = validateForSubmit();
+  if (error) { showStatus(error, true); return; }
+  updatePeriodFields();
+  updateFaceToFaceTotal();
+  updatePercentages();
+  updateCommunications();
+  generateNarratives();
+  setSubmittedNow();
+  showStatus("Report submitted. Overview and summary commentary have been generated. You can download a PDF or print.", false);
+}
+
+function val(id) {
+  const el = document.getElementById(id);
+  return el ? (el.value || "").trim() : "";
+}
+
+function hint(id) {
+  const el = document.getElementById(id);
+  const t = el ? el.textContent.trim() : "";
+  return t && t !== "—" ? t : "";
+}
+
+function esc(s) {
+  return String(s == null ? "" : s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function buildPdfPages() {
+  cleanupPdfArtifacts();
+
+  const bhItems = Array.prototype.map.call(
+    document.querySelectorAll("#bankHolidayList li"),
+    function(li) { return li.textContent; }
+  );
+  const bhSummary = val("bankHolidaySummary");
+  let bhHtml = "";
+  if (bhItems.length) {
+    bhHtml = "<ul class=\"bh-list\">" + bhItems.map(function(t) {
+      return "<li>" + esc(t) + "</li>";
+    }).join("") + "</ul>";
+  } else if (bhSummary) {
+    bhHtml = "<div class=\"pdf-value\">" + esc(bhSummary) + "</div>";
+  }
+
+  function row(label, value, pctText, cls) {
+    const pct = pctText ? "<div class=\"pct\">" + esc(pctText) + "</div>" : "";
+    return "<tr><td class=\"" + (cls || "metric") + "\">" + label + "</td><td>" + esc(value || "—") + pct + "</td></tr>";
+  }
+
+  const submitted = document.getElementById("submittedDisplay").textContent || "Not yet submitted";
+
+  const headerHtml =
+    "<div class=\"pdf-header\">" +
+      "<h1>Public Liaison Report</h1>" +
+      "<p>Monthly engagement summary</p>" +
+    "</div>";
+
+  const page1Inner =
+    headerHtml +
+    "<div class=\"pdf-body\">" +
+      "<h2>Reporting period</h2>" +
+      "<div class=\"pdf-grid\">" +
+        "<div><div class=\"pdf-label\">Meeting Month</div><div class=\"pdf-value\">" + esc(val("meetingMonth") || "—") + "</div></div>" +
+        "<div><div class=\"pdf-label\">Meeting Date</div><div class=\"pdf-value\">" + esc(formatDisplayValue("meetingDate", val("meetingDate")) || "—") + "</div></div>" +
+        "<div><div class=\"pdf-label\">Period Start Date</div><div class=\"pdf-value\">" + esc(formatDisplayValue("startDate", val("startDate")) || "—") + "</div></div>" +
+        "<div><div class=\"pdf-label\">Period End Date</div><div class=\"pdf-value\">" + esc(formatDisplayValue("endDate", val("endDate")) || "—") + "</div></div>" +
+        "<div><div class=\"pdf-label\">Reporting Period</div><div class=\"pdf-value\">" + esc(val("reportingPeriod") || "—") + "</div></div>" +
+        "<div><div class=\"pdf-label\">Calendar days in period</div><div class=\"pdf-value\">" + esc(val("daysPeriod") || "—") + "</div></div>" +
+      "</div>" +
+      "<div class=\"pdf-label\">UK bank holidays in period</div>" +
+      (bhHtml || "<div class=\"pdf-value\">—</div>") +
+      "<h2>Engagement overview</h2>" +
+      "<div class=\"pdf-narrative\">" + esc(val("overview") || "—") + "</div>" +
+      "<h2>Engagement activity summary</h2>" +
+      "<table><thead><tr><th>Engagement Metric</th><th>Total</th></tr></thead><tbody>" +
+        row("Total Engagements", val("totalEngagements")) +
+        row("Proactive Engagements", val("proactiveEngagements"), hint("proactivePct")) +
+        row("Reactive Engagements", val("reactiveEngagements"), hint("reactivePct")) +
+        row("Face-to-Face Engagements (excl. drop-ins)", val("faceToFaceOnly"), "", "sub") +
+        row("Drop-In Attendees", val("dropIn"), "", "sub") +
+        row("Total Face-to-Face Engagements<br><span style=\"font-weight:700;font-size:8.5px;color:#1a3348\">(Face-to-face + Drop-in attendees)</span>", val("faceToFaceTotal"), hint("faceToFacePct")) +
+      "</tbody></table>" +
+      "<h2>Communications summary</h2>" +
+      "<table><thead><tr><th>Communication Type</th><th>Total</th></tr></thead><tbody>" +
+        row("Emails Received", val("emailsReceived"), hint("emailsReceivedPct")) +
+        row("Emails Sent", val("emailsSent"), hint("emailsSentPct")) +
+        row("Phone Calls Incoming", val("callsIncoming"), hint("callsIncomingPct")) +
+        row("Phone Calls Outgoing", val("callsOutgoing"), hint("callsOutgoingPct")) +
+        row("Texts/WhatsApp Messages Received", val("messagesReceived"), hint("messagesReceivedPct")) +
+        row("Texts/WhatsApp Messages Sent", val("messagesSent"), hint("messagesSentPct")) +
+        row("Newsletters Distributed (Digital)<br><span style=\"font-weight:700;font-size:8.5px;color:#1a3348\">(included within Emails Sent)</span>", val("newslettersDigital"), hint("newslettersDigitalPct"), "sub") +
+        row("Newsletters Distributed (Print)<br><span style=\"font-weight:700;font-size:8.5px;color:#1a3348\">(included within Total Face-to-Face)</span>", val("newslettersPrint"), hint("newslettersPrintPct"), "sub") +
+        row("Total communications volume<br><span style=\"font-weight:700;font-size:8.5px;color:#1a3348\">(Emails + Phone + Messages — newsletters excluded)</span>", val("commsTotal"), hint("commsBreakdown")) +
+      "</tbody></table>" +
+      "<h2>Feedback</h2>" +
+      "<table><thead><tr><th>Feedback Type</th><th>Total</th></tr></thead><tbody>" +
+        row("Complaints Received", val("complaints")) +
+        row("Compliments Received", val("compliments")) +
+      "</tbody></table>" +
+    "</div>";
+
+  const page2Inner =
+    headerHtml +
+    "<div class=\"pdf-body\">" +
+      "<h2>Summary commentary</h2>" +
+      "<div class=\"pdf-narrative\">" + esc(val("commentary") || "—") + "</div>" +
+      "<h2>Key observations</h2>" +
+      "<div class=\"pdf-narrative\">" + esc(val("observations") || "—") + "</div>" +
+      "<h2>Additional notes</h2>" +
+      "<div class=\"pdf-notes-box\">" +
+        "<div class=\"pdf-notes-label\">Space for handwritten or typed notes</div>" +
+        "<div class=\"pdf-notes-body\">" + esc(val("additionalNotes") || "") + "</div>" +
+      "</div>" +
+      "<div class=\"pdf-footer\"><strong>Submitted:</strong> " + esc(submitted) + "</div>" +
+    "</div>";
+
+  function makePage(id, html) {
+    const el = document.createElement("div");
+    el.id = id;
+    el.className = "pdf-clone-page";
+    el.setAttribute("style",
+      "position:fixed;left:0;top:0;width:794px;background:#ffffff;color:#0b1220;" +
+      "font-family:Arial,Helvetica,sans-serif;z-index:2147483645;box-sizing:border-box;" +
+      "pointer-events:none;overflow:visible;"
+    );
+    el.innerHTML = html;
+    document.body.appendChild(el);
+    return el;
+  }
+
+  return {
+    page1: makePage("pdfPage1", page1Inner),
+    page2: makePage("pdfPage2", page2Inner)
+  };
+}
+
+function cleanupPdfArtifacts() {
+  ["pdfClone", "pdfPage1", "pdfPage2", "pdfOverlay"].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el && el.parentNode) el.remove();
+  });
+}
+
+function canvasToPdfPage(pdf, canvas, marginMm) {
+  const pageW = pdf.internal.pageSize.getWidth();
+  const pageH = pdf.internal.pageSize.getHeight();
+  const usableW = pageW - marginMm * 2;
+  const usableH = pageH - marginMm * 2;
+  const ratio = canvas.height / canvas.width;
+  let w = usableW;
+  let h = usableW * ratio;
+  if (h > usableH) {
+    h = usableH;
+    w = usableH / ratio;
+  }
+  const img = canvas.toDataURL("image/jpeg", 0.98);
+  pdf.addImage(img, "JPEG", marginMm, marginMm, w, h);
+}
+
+function downloadPdf() {
+  const error = validateForSubmit();
+  if (error) {
+    showStatus(error + " Complete required fields before downloading.", true);
+    return;
+  }
+
+  updatePeriodFields();
+  updateFaceToFaceTotal();
+  updatePercentages();
+  updateCommunications();
+  if (!document.getElementById("overview").value.trim()) {
+    generateNarratives();
+  }
+  if (!submittedAt) {
+    setSubmittedNow();
+  }
+  syncPrintText();
+
+  if (typeof html2canvas === "undefined" || !window.jspdf) {
+    showStatus("PDF libraries not loaded (need internet). Use Print / Save as PDF instead.", true);
+    return;
+  }
+
+  const monthSlug = (document.getElementById("meetingMonth").value || "report")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "") || "report";
+  const filename = "public-liaison-report-" + monthSlug + ".pdf";
+
+  showStatus("Preparing PDF…", false);
+  cleanupPdfArtifacts();
+
+  const overlay = document.createElement("div");
+  overlay.id = "pdfOverlay";
+  overlay.textContent = "Preparing PDF…";
+  document.body.appendChild(overlay);
+
+  const pages = buildPdfPages();
+  const marginMm = 8;
+  const captureOpts = {
+    scale: 2,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: "#ffffff",
+    logging: false,
+    scrollX: 0,
+    scrollY: 0,
+    windowWidth: 794
+  };
+
+  /* Wait for layout, then capture each page */
+  setTimeout(function() {
+    const h1 = Math.max(pages.page1.scrollHeight, pages.page1.offsetHeight, 100);
+    const h2 = Math.max(pages.page2.scrollHeight, pages.page2.offsetHeight, 100);
+    captureOpts.windowHeight = Math.max(h1, h2);
+
+    Promise.all([
+      html2canvas(pages.page1, Object.assign({}, captureOpts, { height: h1, width: 794 })),
+      html2canvas(pages.page2, Object.assign({}, captureOpts, { height: h2, width: 794 }))
+    ]).then(function(canvases) {
+      if (!canvases[0].width || !canvases[1].width) {
+        throw new Error("Canvas captured with zero size");
+      }
+      const jsPDF = window.jspdf.jsPDF;
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      canvasToPdfPage(pdf, canvases[0], marginMm);
+      pdf.addPage();
+      canvasToPdfPage(pdf, canvases[1], marginMm);
+      pdf.save(filename);
+      cleanupPdfArtifacts();
+      showStatus("Downloaded " + filename + " to this device.", false);
+    }).catch(function(err) {
+      console.warn("PDF error:", err);
+      cleanupPdfArtifacts();
+      const detail = (err && err.message) ? err.message : "unknown error";
+      showStatus("PDF download failed (" + detail + "). Use Print / Save as PDF instead.", true);
+    });
+  }, 250);
+}
+
+function preparePrint() {
+  updatePeriodFields();
+  updateFaceToFaceTotal();
+  updatePercentages();
+  updateCommunications();
+  if (!submittedAt) {
+    /* Optional: do not force submit on print-only */
+  }
+  syncPrintText();
+  window.print();
+}
+
+function clearForm() {
+  if (!confirm("Clear all fields? This cannot be undone.")) return;
+  fieldIds.forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+  document.getElementById("proactivePct").textContent = "—";
+  document.getElementById("reactivePct").textContent = "—";
+  document.getElementById("faceToFacePct").textContent = "—";
+  document.getElementById("bankHolidayList").innerHTML = "";
+  document.getElementById("bankHolidayList").hidden = true;
+  document.getElementById("bankHolidayNone").hidden = true;
+  submittedAt = null;
+  document.getElementById("submittedDisplay").textContent = "Not yet submitted";
+  document.getElementById("submittedIso").textContent = "";
+  ["emailsReceivedPct","emailsSentPct","callsIncomingPct","callsOutgoingPct",
+   "messagesReceivedPct","messagesSentPct","newslettersDigitalPct","newslettersPrintPct",
+   "commsBreakdown"].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = "—";
+  });
+  syncPrintText();
+  document.getElementById("statusBanner").classList.remove("show");
+}
+
+document.getElementById("startDate").addEventListener("change", updatePeriodFields);
+document.getElementById("endDate").addEventListener("change", updatePeriodFields);
+document.getElementById("meetingDate").addEventListener("change", updatePeriodFields);
+
+["totalEngagements", "proactiveEngagements", "reactiveEngagements"].forEach(function(id) {
+  document.getElementById(id).addEventListener("input", function() {
+    updatePercentages();
+    updateCommunications();
+  });
+});
+
+["faceToFaceOnly", "dropIn"].forEach(function(id) {
+  document.getElementById(id).addEventListener("input", function() {
+    updateFaceToFaceTotal();
+    updatePercentages();
+    updateCommunications();
+  });
+});
+
+commsIds.concat(newsletterIds).forEach(function(id) {
+  document.getElementById(id).addEventListener("input", updateCommunications);
+});
+
+["meetingMonth","overview","commentary","observations","additionalNotes"].forEach(function(id) {
+  document.getElementById(id).addEventListener("input", syncPrintText);
+});
+
+document.getElementById("submitBtn").addEventListener("click", submitReport);
+document.getElementById("downloadBtn").addEventListener("click", downloadPdf);
+document.getElementById("printBtn").addEventListener("click", preparePrint);
+document.getElementById("clearBtn").addEventListener("click", clearForm);
+
+window.addEventListener("beforeprint", function() {
+  updatePeriodFields();
+  updateFaceToFaceTotal();
+  updatePercentages();
+  updateCommunications();
+  syncPrintText();
+});
+</script>
+</body>
+</html>

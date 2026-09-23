@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPC Civils – Monthly Engagement Report</title>
+<style>
+  :root {
+    --navy:#17324d;
+    --blue:#1f5f8b;
+    --light:#eef4f8;
+    --border:#cbd5df;
+    --text:#1f2933;
+    --muted:#667788;
+    --white:#fff;
+    --accent:#d9eaf5;
+    --success:#1a6b3c;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    background:#f3f5f7;
+    color:var(--text);
+  }
+  .container {
+    max-width:1100px;
+    margin:28px auto;
+    padding:0 18px 50px;
+  }
+  .header {
+    background:var(--navy);
+    color:white;
+    padding:25px 30px;
+    border-radius:10px 10px 0 0;
+  }
+  .header h1 { margin:0 0 5px; font-size:27px; }
+  .header p { margin:0; opacity:.9; }
+  .card {
+    background:white;
+    border:1px solid var(--border);
+    border-top:0;
+    padding:24px 28px;
+  }
+  .section {
+    margin-bottom:26px;
+  }
+  .section:last-child { margin-bottom:0; }
+  .section h2 {
+    margin:0 0 15px;
+    color:var(--navy);
+    font-size:19px;
+    padding-bottom:8px;
+    border-bottom:2px solid var(--accent);
+  }
+  .grid {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:15px 20px;
+  }
+  .field label {
+    display:block;
+    font-weight:700;
+    font-size:13px;
+    margin-bottom:6px;
+  }
+  input, textarea {
+    width:100%;
+    border:1px solid var(--border);
+    border-radius:5px;
+    padding:10px;
+    font:inherit;
+    color:var(--text);
+    background:white;
+  }
+  input:focus, textarea:focus {
+    outline:2px solid #9fc4dd;
+    border-color:var(--blue);
+  }
+  input[readonly], textarea[readonly] {
+    background:#f4f7fa;
+    color:var(--text);
+  }
+  textarea { min-height:105px; resize:vertical; }
+  table {
+    width:100%;
+    border-collapse:collapse;
+    margin-top:4px;
+  }
+  th, td {
+    border:1px solid var(--border);
+    padding:10px 12px;
+    text-align:left;
+  }
+  th {
+    background:var(--light);
+    color:var(--navy);
+    font-weight:700;
+  }
+  td.metric { font-weight:600; }
+  td input { border:0; padding:4px; background:transparent; }
+  td input:focus {
+    outline:1px solid #9fc4dd;
+    background:white;
+  }
+  td input[readonly] {
+    background:transparent;
+    color:var(--muted);
+    font-weight:600;
+  }
+  .pct-hint {
+    font-size:12px;
+    color:var(--muted);
+    margin-top:4px;
+  }
+  .actions {
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:22px;
+  }
+  button {
+    border:0;
+    border-radius:5px;
+    padding:11px 17px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .primary { background:var(--navy); color:white; }
+  .secondary { background:#e8edf1; color:var(--navy); }
+  .success { background:#d9efe3; color:var(--success); }
+  .danger { background:#f3dddd; color:#7b1e1e; }
+  .small-note {
+    color:var(--muted);
+    font-size:12px;
+    margin-top:7px;
+    line-height:1.4;
+  }
+  .status-banner {
+    display:none;
+    margin-top:16px;
+    padding:12px 14px;
+    border-radius:6px;
+    background:#e8f5ee;
+    border:1px solid #b7dfc6;
+    color:var(--success);
+    font-size:14px;
+    font-weight:600;
+  }
+  .status-banner.show { display:block; }
+  .status-banner.error {
+    background:#fdecec;
+    border-color:#f0c0c0;
+    color:#7b1e1e;
+  }
+  @media(max-width:750px) {
+    .grid { grid-template-columns:1fr; }
+    .container { margin:12px auto; }
+    .card { padding:18px; }
+  }
+  @media print {
+    body { background:white; }
+    .actions, .status-banner { display:none !important; }
+    .container { max-width:none; margin:0; padding:0; }
+    .header { border-radius:0; }
+    .card { border:0; }
+    input, textarea { border:0; padding:0; background:transparent !important; }
+    textarea { min-height:auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>Monthly Engagement Report</h1>
+    <p>Client Summary</p>
+  </div>
+
+  <div class="card">
+
+    <section class="section">
+      <h2>Reporting period</h2>
+      <div class="grid">
+        <div class="field">
+          <label for="meetingMonth">Meeting Month</label>
+          <input id="meetingMonth" placeholder="e.g. September 2026">
+        </div>
+        <div class="field">
+          <label for="meetingDate">Meeting Date</label>
+          <input id="meetingDate" type="date">
+        </div>
+        <div class="field">
+          <label for="startDate">Period Start Date</label>
+          <input id="startDate" type="date">
+        </div>
+        <div class="field">
+          <label for="endDate">Period End Date</label>
+          <input id="endDate" type="date">
+        </div>
+        <div class="field">
+          <label for="reportingPeriod">Reporting Period</label>
+          <input id="reportingPeriod" readonly placeholder="Auto-filled from start &amp; end dates">
+        </div>
+        <div class="field">
+          <label for="daysPeriod">Days in Period</label>
+          <input id="daysPeriod" type="number" readonly placeholder="Auto-calculated">
+        </div>
+      </div>
+      <p class="small-note">Days in Period is calculated inclusive of both the start and end dates.</p>
+    </section>
+
+    <section class="section">
+      <h2>Engagement overview</h2>
+      <div class="field">
+        <label for="overview">Overview / narrative</label>
+        <textarea id="overview" readonly placeholder="Generated automatically when you submit the form."></textarea>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Engagement activity summary</h2>
+      <table>
+        <thead>
+          <tr><th>Engagement Metric</th><th>Total</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="metric">Total Engagements</td>
+            <td><input id="totalEngagements" type="number" min="0" step="1" placeholder="0"></td>
+          </tr>
+          <tr>
+            <td class="metric">Proactive Engagements</td>
+            <td>
+              <input id="proactiveEngagements" type="number" min="0" step="1" placeholder="0">
+              <div class="pct-hint" id="proactivePct">—</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="metric">Reactive Engagements</td>
+            <td>
+              <input id="reactiveEngagements" type="number" min="0" step="1" placeholder="0">
+              <div class="pct-hint" id="reactivePct">—</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="metric">Face-to-Face Engagements</td>
+            <td><input id="faceToFace" type="number" min="0" step="1" placeholder="0"></td>
+          </tr>
+          <tr>
+            <td class="metric">Drop-In Attendees</td>
+            <td><input id="dropIn" type="number" min="0" step="1" placeholder="0"></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="small-note">Proactive and Reactive percentages are calculated from Total Engagements.</p>
+    </section>
+
+    <section class="section">
+      <h2>Communications summary</h2>
+      <table>
+        <thead>
+          <tr><th>Communication Type</th><th>Total</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="metric">Emails Received</td><td><input id="emailsReceived" type="number" min="0" step="1" placeholder="0"></td></tr>
+          <tr><td class="metric">Emails Sent</td><td><input id="emailsSent" type="number" min="0" step="1" placeholder="0"></td></tr>
+          <tr><td class="metric">Phone Calls Incoming</td><td><input id="callsIncoming" type="number" min="0" step="1" placeholder="0"></td></tr>
+          <tr><td class="metric">Phone Calls Outgoing</td><td><input id="callsOutgoing" type="number" min="0" step="1" placeholder="0"></td></tr>
+          <tr><td class="metric">Texts/WhatsApp Messages Received</td><td><input id="messagesReceived" type="number" min="0" step="1" placeholder="0"></td></tr>
+          <tr><td class="metric">Texts/WhatsApp Messages Sent</td><td><input id="messagesSent" type="number" min="0" step="1" placeholder="0"></td></tr>
+          <tr><td class="metric">Newsletters Distributed (Digital)</td><td><input id="newslettersDigital" type="number" min="0" step="1" placeholder="0"></td></tr>
+          <tr><td class="metric">Newsletters Distributed (Print)</td><td><input id="newslettersPrint" type="number" min="0" step="1" placeholder="0"></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2>Feedback &amp; sentiment</h2>
+      <table>
+        <thead>
+          <tr><th>Feedback Type</th><th>Total</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="metric">Complaints Received</td><td><input id="complaints" type="number" min="0" step="1" placeholder="0"></td></tr>
+          <tr><td class="metric">Compliments Received</td><td><input id="compliments" type="number" min="0" step="1" placeholder="0"></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2>Summary commentary</h2>
+      <div class="field">
+        <textarea id="commentary" readonly placeholder="Generated automatically when you submit the form."></textarea>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Key observations</h2>
+      <div class="field">
+        <textarea id="observations" placeholder="Add any key observations here (optional)."></textarea>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button type="button" class="primary" id="submitBtn">Submit report</button>
+      <button type="button" class="success" id="downloadBtn">Download to this device</button>
+      <button type="button" class="secondary" onclick="window.print()">Print / Save as PDF</button>
+      <button type="button" class="danger" id="clearBtn">Clear all fields</button>
+    </div>
+
+    <div id="statusBanner" class="status-banner" role="status" aria-live="polite"></div>
+
+  </div>
+</div>
+
+<script>
+const fieldIds = [
+  "meetingMonth","meetingDate","startDate","endDate","reportingPeriod","daysPeriod",
+  "overview",
+  "totalEngagements","proactiveEngagements","reactiveEngagements","faceToFace","dropIn",
+  "emailsReceived","emailsSent","callsIncoming","callsOutgoing",
+  "messagesReceived","messagesSent","newslettersDigital","newslettersPrint",
+  "complaints","compliments","commentary","observations"
+];
+
+function num(id) {
+  const v = document.getElementById(id).value;
+  if (v === "" || v === null) return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+
+function formatGBDate(iso) {
+  if (!iso) return "";
+  const [y, m, d] = iso.split("-");
+  if (!y || !m || !d) return "";
+  return `${d}/${m}/${y.slice(2)}`;
+}
+
+function formatMonthYear(iso) {
+  if (!iso) return "";
+  const dt = new Date(iso + "T00:00:00");
+  if (isNaN(dt)) return "";
+  return dt.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+}
+
+function updatePeriodFields() {
+  const start = document.getElementById("startDate").value;
+  const end = document.getElementById("endDate").value;
+  const periodEl = document.getElementById("reportingPeriod");
+  const daysEl = document.getElementById("daysPeriod");
+
+  if (start && end) {
+    const startDt = new Date(start + "T00:00:00");
+    const endDt = new Date(end + "T00:00:00");
+    if (!isNaN(startDt) && !isNaN(endDt) && endDt >= startDt) {
+      const ms = endDt - startDt;
+      const days = Math.round(ms / 86400000) + 1; // inclusive
+      daysEl.value = days;
+      periodEl.value = `${formatGBDate(start)} – ${formatGBDate(end)}`;
+    } else if (endDt < startDt) {
+      daysEl.value = "";
+      periodEl.value = "";
+    }
+  } else {
+    daysEl.value = "";
+    periodEl.value = start || end ? periodEl.value : "";
+    if (!start || !end) {
+      periodEl.value = "";
+      daysEl.value = "";
+    }
+  }
+
+  // Optional: fill meeting month from meeting date if empty
+  const meetingDate = document.getElementById("meetingDate").value;
+  const monthEl = document.getElementById("meetingMonth");
+  if (meetingDate && !monthEl.value.trim()) {
+    monthEl.value = formatMonthYear(meetingDate);
+  }
+}
+
+function pct(part, total) {
+  if (total === null || total === 0 || part === null) return null;
+  return Math.round((part / total) * 100);
+}
+
+function updatePercentages() {
+  const total = num("totalEngagements");
+  const proactive = num("proactiveEngagements");
+  const reactive = num("reactiveEngagements");
+
+  const pEl = document.getElementById("proactivePct");
+  const rEl = document.getElementById("reactivePct");
+
+  const p = pct(proactive, total);
+  const r = pct(reactive, total);
+
+  pEl.textContent = p === null ? "—" : `${p}% of total`;
+  rEl.textContent = r === null ? "—" : `${r}% of total`;
+}
+
+function generateNarratives() {
+  const total = num("totalEngagements") ?? 0;
+  const proactive = num("proactiveEngagements") ?? 0;
+  const reactive = num("reactiveEngagements") ?? 0;
+  const face = num("faceToFace") ?? 0;
+  const dropIn = num("dropIn") ?? 0;
+  const complaints = num("complaints") ?? 0;
+  const compliments = num("compliments") ?? 0;
+  const emailsSent = num("emailsSent") ?? 0;
+  const emailsReceived = num("emailsReceived") ?? 0;
+  const newslettersDigital = num("newslettersDigital") ?? 0;
+  const newslettersPrint = num("newslettersPrint") ?? 0;
+  const days = num("daysPeriod");
+  const period = document.getElementById("reportingPeriod").value || "the reporting period";
+  const month = document.getElementById("meetingMonth").value || "this period";
+
+  const proactivePct = pct(proactive, total);
+  const reactivePct = pct(reactive, total);
+  const facePct = pct(face, total);
+
+  // Overview
+  let overviewParts = [];
+  if (total === 0) {
+    overviewParts.push(`No engagement activity was recorded for ${period}.`);
+  } else {
+    overviewParts.push(
+      `During ${period}${days ? ` (${days} days)` : ""}, a total of ${total} engagements were recorded.`
+    );
+    if (proactivePct !== null) {
+      overviewParts.push(
+        `Proactive engagement accounted for ${proactive} (${proactivePct}%) of activity, with ${reactive} (${reactivePct ?? 0}%) reactive.`
+      );
+    }
+    if (face > 0 || dropIn > 0) {
+      let faceLine = `Face-to-face engagements totalled ${face}`;
+      if (facePct !== null) faceLine += ` (${facePct}% of all engagements)`;
+      if (dropIn > 0) faceLine += `, including ${dropIn} drop-in attendee${dropIn === 1 ? "" : "s"}`;
+      faceLine += ".";
+      overviewParts.push(faceLine);
+    }
+  }
+
+  if (complaints === 0 && compliments === 0) {
+    overviewParts.push("No complaints or compliments were received during the period.");
+  } else if (complaints === 0) {
+    overviewParts.push(`${compliments} compliment${compliments === 1 ? "" : "s"} received; no complaints.`);
+  } else {
+    overviewParts.push(
+      `${complaints} complaint${complaints === 1 ? "" : "s"} and ${compliments} compliment${compliments === 1 ? "" : "s"} were received.`
+    );
+  }
+
+  document.getElementById("overview").value = overviewParts.join(" ");
+
+  // Summary commentary
+  let commentaryParts = [];
+
+  if (total === 0) {
+    commentaryParts.push("Activity levels were minimal for this reporting period.");
+  } else if (proactivePct !== null && proactivePct >= 85) {
+    commentaryParts.push(
+      "Engagement remained strongly proactive, consistent with a planned outreach approach rather than reactive issue management."
+    );
+  } else if (proactivePct !== null && proactivePct >= 70) {
+    commentaryParts.push(
+      "The majority of engagements were proactive, indicating steady planned contact with stakeholders."
+    );
+  } else if (proactivePct !== null) {
+    commentaryParts.push(
+      "Reactive engagement formed a more significant share of activity this period and may warrant further review."
+    );
+  }
+
+  if (face > 0 && dropIn > 0) {
+    commentaryParts.push(
+      "Face-to-face contact, including drop-in attendance, supported direct stakeholder dialogue."
+    );
+  } else if (face > 0) {
+    commentaryParts.push("Face-to-face engagement contributed to direct stakeholder contact this period.");
+  }
+
+  const newsletterTotal = newslettersDigital + newslettersPrint;
+  if (newsletterTotal > 0) {
+    commentaryParts.push(
+      `Newsletter distribution totalled ${newsletterTotal} (${newslettersDigital} digital, ${newslettersPrint} print).`
+    );
+  }
+
+  if (emailsSent > 0 || emailsReceived > 0) {
+    commentaryParts.push(
+      `Email traffic comprised ${emailsSent} outgoing and ${emailsReceived} incoming messages.`
+    );
+  }
+
+  if (complaints === 0) {
+    commentaryParts.push("No formal complaints were logged, supporting a stable sentiment position for " + month + ".");
+  } else {
+    commentaryParts.push(
+      "Complaints were recorded and should be tracked through to closure as part of ongoing stakeholder management."
+    );
+  }
+
+  if (compliments > 0) {
+    commentaryParts.push(
+      `${compliments} compliment${compliments === 1 ? " was" : "s were"} received, reflecting positive stakeholder feedback.`
+    );
+  }
+
+  document.getElementById("commentary").value = commentaryParts.join(" ");
+}
+
+function showStatus(message, isError) {
+  const el = document.getElementById("statusBanner");
+  el.textContent = message;
+  el.classList.toggle("error", !!isError);
+  el.classList.add("show");
+}
+
+function validateForSubmit() {
+  const start = document.getElementById("startDate").value;
+  const end = document.getElementById("endDate").value;
+  if (!start || !end) {
+    return "Please enter both Period Start Date and Period End Date.";
+  }
+  const startDt = new Date(start + "T00:00:00");
+  const endDt = new Date(end + "T00:00:00");
+  if (endDt < startDt) {
+    return "Period End Date must be on or after Period Start Date.";
+  }
+  const total = num("totalEngagements");
+  if (total === null) {
+    return "Please enter Total Engagements (use 0 if none).";
+  }
+  return null;
+}
+
+function collectData() {
+  const data = {};
+  fieldIds.forEach(id => {
+    data[id] = document.getElementById(id).value;
+  });
+  data.proactivePercent = document.getElementById("proactivePct").textContent;
+  data.reactivePercent = document.getElementById("reactivePct").textContent;
+  data.exportedAt = new Date().toISOString();
+  return data;
+}
+
+function submitReport() {
+  const error = validateForSubmit();
+  if (error) {
+    showStatus(error, true);
+    return;
+  }
+  updatePeriodFields();
+  updatePercentages();
+  generateNarratives();
+  showStatus("Report submitted. Overview and summary commentary have been generated. You can still edit observations and download or print.", false);
+}
+
+function downloadReport() {
+  const error = validateForSubmit();
+  if (error) {
+    showStatus(error + " Submit or complete required fields before downloading.", true);
+    return;
+  }
+
+  // Ensure narratives are up to date
+  updatePeriodFields();
+  updatePercentages();
+  if (!document.getElementById("overview").value.trim()) {
+    generateNarratives();
+  }
+
+  const data = collectData();
+  const monthSlug = (data.meetingMonth || "report")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "") || "report";
+  const filename = `cpc-monthly-engagement-${monthSlug}.json`;
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+
+  showStatus(`Downloaded ${filename} to this device.`, false);
+}
+
+function clearForm() {
+  if (!confirm("Clear all fields? This cannot be undone.")) return;
+  fieldIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+  document.getElementById("proactivePct").textContent = "—";
+  document.getElementById("reactivePct").textContent = "—";
+  document.getElementById("statusBanner").classList.remove("show");
+}
+
+// Event wiring
+document.getElementById("startDate").addEventListener("change", updatePeriodFields);
+document.getElementById("endDate").addEventListener("change", updatePeriodFields);
+document.getElementById("meetingDate").addEventListener("change", updatePeriodFields);
+
+["totalEngagements", "proactiveEngagements", "reactiveEngagements"].forEach(id => {
+  document.getElementById(id).addEventListener("input", updatePercentages);
+});
+
+document.getElementById("submitBtn").addEventListener("click", submitReport);
+document.getElementById("downloadBtn").addEventListener("click", downloadReport);
+document.getElementById("clearBtn").addEventListener("click", clearForm);
+</script>
+</body>
+</html>
